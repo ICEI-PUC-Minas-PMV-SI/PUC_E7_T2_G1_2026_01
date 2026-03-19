@@ -81,86 +81,22 @@ Espera-se que o modelo desenvolvido neste projeto possa servir como ferramenta d
 
 A análise de risco de crédito tem sido amplamente estudada na literatura de ciência de dados, aprendizado de máquina e finanças, pois constitui um dos principais mecanismos utilizados por instituições financeiras para prever a probabilidade de inadimplência de clientes. Nos últimos anos, diversos estudos têm explorado técnicas de aprendizado de máquina para aprimorar a precisão dos modelos tradicionais de avaliação de crédito, superando abordagens baseadas apenas em métodos estatísticos clássicos. A seguir são apresentados alguns trabalhos relevantes que investigam o uso de técnicas computacionais para previsão de risco de crédito.
 
-A análise dos trabalhos apresentados demonstra um consenso na literatura de que técnicas de aprendizado de máquina possuem maior capacidade de capturar padrões complexos presentes em dados financeiros quando comparados a métodos estatísticos tradicionais. Estudos como os de Yeh & Lien (2009) e Lessmann et al. (2015) evidenciam que algoritmos de classificação mais avançados frequentemente apresentam desempenho superior na previsão de inadimplência.
+O estudo de Xia et al. (2018) propõe um modelo híbrido de aprendizado de máquina para credit scoring, combinando algoritmos como Random Forest e Support Vector Machine aliados a técnicas de seleção de atributos. Os resultados demonstram que a abordagem híbrida apresenta desempenho superior em métricas como AUC, F1-score e acurácia, especialmente em cenários com dados desbalanceados, evidenciando o potencial da combinação de modelos para melhorar a capacidade preditiva.
 
-Outro ponto de convergência entre os estudos está relacionado à importância da qualidade dos dados e do pré-processamento, incluindo tratamento de valores faltantes, seleção de atributos e balanceamento de classes. Trabalhos como Xia et al. (2018) demonstram que a combinação de técnicas e modelos híbridos pode melhorar significativamente o desempenho dos sistemas de pontuação de crédito.
+Na mesma linha, Konatham et al. (2025) propõem uma abordagem baseada em inteligência artificial aplicada ao contexto de bancos digitais, destacando a importância de pipelines robustos de pré-processamento de dados, incluindo normalização, engenharia de atributos e tratamento de desbalanceamento por meio de técnicas como SMOTE. O estudo utiliza modelos de classificação binária com otimização por validação cruzada e ajuste de hiperparâmetros, alcançando resultados superiores em métricas como precisão, recall e AUC quando comparados a modelos tradicionais. Além disso, o trabalho enfatiza a necessidade de sistemas adaptativos com aprendizado contínuo e detecção de drift, permitindo maior robustez em ambientes dinâmicos.
 
-Entretanto, também existem divergências e limitações apontadas na literatura. Alguns estudos indicam que modelos mais complexos podem apresentar menor interpretabilidade, o que representa um desafio para instituições financeiras que precisam justificar decisões de concessão de crédito em contextos regulatórios. Além disso, muitos trabalhos utilizam datasets específicos ou proprietários, o que dificulta a replicação dos experimentos e a comparação direta entre modelos.
+Teles et al. (2020) apresentam uma revisão sistemática com meta-análise de métodos de classificação aplicados ao credit scoring, analisando diferentes algoritmos como redes neurais, árvores de decisão, regressão logística e Support Vector Machines. O estudo destaca que modelos baseados em inteligência artificial apresentam maior capacidade de identificação de padrões complexos, porém ainda enfrentam limitações relacionadas à interpretabilidade. Além disso, evidencia que fatores como colateral, capacidade de pagamento e condições econômicas são variáveis relevantes na avaliação de risco, reforçando a natureza multifatorial do problema.
 
-Diante disso, o presente projeto busca contribuir para a área por meio da aplicação de técnicas de aprendizado de máquina em um dataset aberto de análise de crédito, permitindo explorar padrões presentes em dados financeiros e avaliar diferentes modelos de classificação para previsão de inadimplência. Dessa forma, o estudo se alinha às pesquisas existentes ao investigar o potencial de algoritmos de machine learning para apoiar instituições financeiras e empresas que ofertam crédito na tomada de decisões mais precisas e baseadas em dados.
+Já Assef et al. (2019) exploram a aplicação de algoritmos de classificação em dados reais de uma instituição financeira, utilizando Redes Neurais Artificiais (MLP e RBF) e Regressão Logística para classificar clientes em três categorias: adimplentes, inadimplentes e temporariamente inadimplentes. Os resultados indicam que, embora os modelos consigam identificar com maior precisão clientes inadimplentes, há maior dificuldade na distinção entre classes intermediárias, evidenciando desafios na modelagem de comportamentos financeiros mais sutis. O estudo também contribui ao propor uma abordagem multiclasses, pouco explorada na literatura tradicional.
 
-####  Yeh & Lien (2009) – Comparação de técnicas de mineração de dados para previsão de default
+Por fim, Li (2023) propõe um modelo baseado em redes neurais profundas do tipo Backpropagation (BP Neural Network) para avaliação de risco de crédito, incorporando técnicas como normalização de dados e seleção de atributos com base no Analytic Hierarchy Process (AHP). Os resultados demonstram melhoria das previsões e maior eficiência na gestão de risco de crédito, evidenciando a capacidade das redes neurais em lidar com relações não lineares e dados complexos. O estudo também ressalta a vantagem desses modelos em relação a métodos tradicionais, principalmente em cenários com grande volume de dados.
 
-##### Problema e contexto:
-
-O estudo buscou comparar diferentes técnicas de mineração de dados aplicadas à previsão de inadimplência em cartões de crédito. O objetivo foi verificar quais algoritmos apresentariam melhor desempenho na classificação de clientes que poderiam entrar em default.
-
-##### Dados (dataset):
-
-Foi utilizado o dataset Default of Credit Card Clients, amplamente utilizado em pesquisas acadêmicas. O conjunto de dados contém informações de 30.000 clientes de cartão de crédito em Taiwan, com 23 variáveis relacionadas a histórico de pagamentos, limites de crédito, dados demográficos e status de pagamento.
-
-##### Abordagem/algoritmos:
-
-Foram comparados diversos métodos de classificação, incluindo:
-●	Regressão Logística
-●	Árvores de Decisão
-●	Redes Neurais
-●	Métodos baseados em mineração de dados
-
-##### Resultados:
-Os resultados indicaram que métodos de mineração de dados e redes neurais apresentaram desempenho superior em relação à regressão logística tradicional. O estudo concluiu que técnicas mais avançadas podem melhorar significativamente a previsão de inadimplência em instituições financeiras.
-
-#### Lessmann et al. (2015) – Benchmark de algoritmos para credit scoring
-##### Problema e contexto:
-O trabalho realizou um benchmark comparativo entre diversos algoritmos de aprendizado de máquina aplicados ao problema de credit scoring.
-
-##### Dados (dataset):
-Foram analisados 41 conjuntos de dados de crédito provenientes de diferentes países, contendo informações financeiras e demográficas de clientes.
-
-##### Abordagem/algoritmos:
-Foram comparados mais de 40 classificadores, incluindo:
-
-●	Random Forest
-●	Support Vector Machines (SVM)
-●	Redes Neurais
-●	Gradient Boosting
-●	Regressão Logística
-
-#####  Métricas de avaliação:
-
-●	AUC (Area Under the Curve)
-●	Taxa de erro
-●	Desempenho comparativo entre algoritmos
-
-##### Resultados:
-O estudo mostrou que algoritmos de ensemble, como Random Forest e Gradient Boosting, tendem a apresentar melhor desempenho em problemas de credit scoring, principalmente quando comparados a modelos lineares tradicionais.
-
-
-#### Brown & Mues (2012) – Uso de ensemble models para análise de crédito
-##### Problema e contexto:
-O estudo investigou a utilização de ensemble learning para melhorar a previsão de risco de crédito em comparação com modelos individuais.
-
-##### Dados (dataset):
-Foram utilizados conjuntos de dados de instituições financeiras contendo variáveis como renda, histórico de pagamento e valores de crédito solicitados.
-
-##### Abordagem/algoritmos:
-●	Bagging
-●	Boosting
-●	Random Forest
-●	Modelos tradicionais de classificação
-
-##### Métricas de avaliação:
-●	AUC
-●	Accuracy
-●	Gini coefficient
-
-##### Resultados:
-
-Os resultados indicaram que modelos ensemble superaram modelos individuais, apresentando maior estabilidade e capacidade de generalização na previsão de inadimplência.
+De forma geral, os estudos analisados constam de que técnicas de aprendizado de máquina e inteligência artificial apresentam maior capacidade de capturar padrões complexos em dados financeiros, contribuindo para a melhoria da previsão de inadimplência. Entretanto, ainda persistem desafios relacionados à interpretabilidade dos modelos, ao tratamento de dados desbalanceados e à generalização dos resultados em diferentes contextos. 
 
 #### Xia et al. (2018) – Modelo híbrido de aprendizado de máquina para credit scoring
 ##### Problema e contexto:
-O estudo propôs um modelo híbrido de aprendizado de máquina para melhorar a classificação de risco de crédito.
+
+O estudo propõe a melhoria da classificação de risco de crédito por meio da combinação de múltiplos algoritmos de aprendizado de máquina, visando superar limitações de modelos individuais, especialmente em cenários com dados desbalanceados.
 
 ##### Dados (dataset):
 
@@ -181,27 +117,114 @@ O modelo combinou:
 ●	Accuracy
 
 ##### Resultados:
-O modelo híbrido apresentou desempenho superior aos algoritmos individuais, principalmente em cenários com dados desbalanceados.
+O modelo híbrido apresentou desempenho superior aos modelos individuais, com maior capacidade de generalização e melhor desempenho em bases de dados desbalanceadas, evidenciando a eficácia da combinação de algoritmos na previsão de inadimplência.
 
-#### Baesens et al. (2003) – Credit scoring utilizando redes neurais
+
+#### Konatham et al. (2025) – Otimização da análise de risco de crédito com IA em bancos digitais
 ##### Problema e contexto:
-O estudo investigou a aplicação de redes neurais artificiais para previsão de risco de crédito.
+O estudo busca aprimorar a análise de risco de crédito em bancos digitais, considerando desafios como grande volume de dados, necessidade de processamento em tempo real e mudanças constantes no comportamento dos clientes.
 ##### Dados (dataset):
-Foram utilizados dados históricos de crédito contendo:
-●	histórico de pagamento
-●	dados demográficos
-●	dados financeiros
+
+Foram utilizados dados financeiros digitais contendo variáveis relacionadas a:
+
+● histórico transacional
+● utilização de crédito (credit utilization)
+● relação dívida/renda (debt-to-income)
+● comportamento de pagamento
+● dados com valores faltantes e ruído
+
 ##### Abordagem/algoritmos:
-●	Redes neurais multilayer perceptron
-●	Regressão logística
-●	Árvores de decisão
+O modelo incluiu um pipeline completo de machine learning com:
+
+● pré-processamento (normalização e imputação de dados)
+● balanceamento de classes (SMOTE)
+● engenharia de atributos (feature engineering)
+● modelos de classificação supervisionada
+● validação cruzada (K-fold)
+
 ##### Métricas de avaliação:
 ●	Accuracy
 ●	ROC Curve
 ●	AUC
 ##### Resultados:
-As redes neurais apresentaram capacidade elevada de capturar relações complexas entre variáveis financeiras, resultando em desempenho competitivo em comparação com modelos estatísticos tradicionais.
+O modelo apresentou alto desempenho preditivo e maior robustez em comparação a abordagens tradicionais, destacando-se pela capacidade de adaptação a mudanças nos dados por meio de aprendizado contínuo.
 
+#### Teles et al. (2020) – Métodos de classificação aplicados ao credit scoring com colateral
+##### Problema e contexto:
+O estudo realiza uma revisão sistemática com meta-análise de métodos de classificação aplicados ao credit scoring, com foco na influência do colateral na avaliação de risco.
+##### Dados (dataset):
+
+O estudo analisou múltiplos trabalhos, considerando dados contendo:
+
+● informações financeiras dos clientes
+● histórico de crédito
+● variáveis relacionadas a garantias (colateral)
+● fatores econômicos e comportamentais
+
+##### Abordagem/algoritmos:
+Foram analisados diferentes algoritmos, incluindo:
+
+● Redes Neurais
+● Support Vector Machine (SVM)
+● Regressão Logística
+● Árvores de decisão
+● Redes Bayesianas
+
+##### Métricas de avaliação:
+●	Accuracy
+●	ROC Curve
+●	AUC
+##### Resultados:
+Os modelos baseados em aprendizado de máquina apresentaram melhor desempenho geral, porém com limitações relacionadas à interpretabilidade. O uso de colateral ainda é pouco explorado nos estudos.
+
+#### Assef et al. (2019) – Análise de risco de crédito em pessoas jurídicas
+##### Problema e contexto:
+O estudo busca classificar o risco de crédito de empresas, incluindo uma categoria intermediária de inadimplência temporária, ampliando a abordagem tradicional binária.
+##### Dados (dataset):
+
+O estudo analisou múltiplos trabalhos, considerando dados contendo:
+
+● Foram utilizados dados reais contendo:
+● 5.432 clientes empresariais
+● 15 variáveis
+● informações financeiras e operacionais (faturamento, endividamento, histórico de crédito)
+
+##### Abordagem/algoritmos:
+● Redes Neurais (MLP)
+● Redes de Base Radial (RBF)
+● Regressão Logística
+● Classificação multiclasses
+
+##### Métricas de avaliação:
+●	Accuracy
+●	Desempenho por classe
+
+##### Resultados:
+Os modelos apresentaram bom desempenho na identificação de inadimplentes, porém dificuldade na distinção entre classes intermediárias, evidenciando a complexidade do problema.
+
+#### Li (2023) – Avaliação de risco de crédito com redes neurais BP
+##### Problema e contexto:
+O estudo propõe o uso de redes neurais profundas para melhorar a previsão de risco de crédito, substituindo métodos tradicionais baseados em análises simplificadas.
+##### Dados (dataset):
+
+Foram utilizados dados financeiros contendo:
+
+● informações de clientes
+● indicadores de capacidade de pagamento
+● variáveis derivadas após pré-processamento
+
+##### Abordagem/algoritmos:
+● BP Neural Network
+● Estrutura multicamada
+● Backpropagation
+● Seleção de atributos com AHP
+
+##### Métricas de avaliação:
+●	Accuracy
+●	Erro de previsão
+
+##### Resultados:
+O modelo apresentou melhora significativa na precisão das previsões, destacando a capacidade das redes neurais em lidar com relações não lineares e dados complexos.
 
 # Descrição do _dataset_ selecionado
 
@@ -256,22 +279,23 @@ A tabela a seguir apresenta uma descrição simplificada de alguns dos principai
 
 BANCO CENTRAL DO BRASIL. **Estatísticas monetárias e de crédito**. Brasília: Banco Central do Brasil, 2026. Disponível em: <https://www.bcb.gov.br/content/estatisticas/hist_estatisticasmonetariascredito/202601_Texto_de_estatisticas_monetarias_e_de_credito.pdf>. Acesso em: 8 mar. 2026.
 
-BANCO CENTRAL DO BRASIL. **Taxa de inadimplência do crédito no Sistema Financeiro Nacional**. Disponível em: <https://www.bcb.gov.br/estatisticas/txinadimplencia>. Acesso em: 8 mar. 2026.
+BANCO CENTRAL DO BRASIL. **Taxa de inadimplência do crédito no Sistema Financeiro Nacional**. Disponível em: <https://www.bcb.gov.br/estatisticas/txinadimplencia>. 
 
-BAESENS, Bart et al. **Benchmarking state-of-the-art classification algorithms for credit scoring**. Journal of the Operational Research Society, 2003. Disponível em: <https://doi.org/10.1057/palgrave.jors.2601545>. Acesso em: 8 mar. 2026.
+BAESENS, Bart et al. **Benchmarking state-of-the-art classification algorithms for credit scoring**. Journal of the Operational Research Society, 2003. Disponível em: <https://doi.org/10.1057/palgrave.jors.2601545>. 
 
-BROWN, Ian; MUES, Christophe. **An experimental comparison of classification algorithms for imbalanced credit scoring data sets**. Expert Systems with Applications, 2012. Disponível em: <https://doi.org/10.1016/j.eswa.2011.12.033>. Acesso em: 8 mar. 2026.
+BROWN, Ian; MUES, Christophe. **An experimental comparison of classification algorithms for imbalanced credit scoring data sets**. Expert Systems with Applications, 2012. Disponível em: <https://doi.org/10.1016/j.eswa.2011.12.033>. 
 
-CREDITAS. **Inadimplência no Brasil: dados e cenário atual**. Disponível em: <https://www.creditas.com/exponencial/inadimplencia-no-brasil/>. Acesso em: 8 mar. 2026.
+CREDITAS. **Inadimplência no Brasil: dados e cenário atual**. Disponível em: <https://www.creditas.com/exponencial/inadimplencia-no-brasil/>. 
+KAGGLE. **Credit Analysis Dataset**. Dataset publicado por Shivam Kapoor. Disponível em: <https://www.kaggle.com/datasets/kapoorshivam/credit-analysis/data>. 
 
-KAGGLE. **Credit Analysis Dataset**. Dataset publicado por Shivam Kapoor. Disponível em: <https://www.kaggle.com/datasets/kapoorshivam/credit-analysis/data>. Acesso em: 8 mar. 2026.
 
-LESSMANN, Stefan et al. **Benchmarking state-of-the-art classification algorithms for credit scoring**. European Journal of Operational Research, 2015. Disponível em: <https://doi.org/10.1016/j.ejor.2014.08.042>. Acesso em: 8 mar. 2026.
+KONATHAM, Mahesh Reddy et al. Optimizing Credit Risk Assessment in Digital Banking Through AI-Driven Predictive Science. In: IEEE International Conference on Advanced Computing Technologies (ICACT), 2025.
 
-MCKINSEY & COMPANY. **AI in banking: The future of analytics in financial services**. Disponível em: <https://www.mckinsey.com/industries/financial-services/our-insights/ai-in-banking>. Acesso em: 8 mar. 2026.
+TELES, Germanno et al. Classification Methods Applied to Credit Scoring With Collateral. IEEE Systems Journal, v. 14, n. 3, 2020.
 
-UCI MACHINE LEARNING REPOSITORY. **Default of Credit Card Clients Dataset**. Disponível em: <https://archive.ics.uci.edu/ml/datasets/default+of+credit+card+clients>. Acesso em: 8 mar. 2026.
+ASSEF, F. M. et al. Classification Algorithms in Financial Application: Credit Risk Analysis on Legal Entities. IEEE Latin America Transactions, v. 17, n. 10, 2019.
 
-XIA, Yufei et al. **A boosted decision tree approach using Bayesian hyper-parameter optimization for credit scoring**. Expert Systems with Applications, 2018. Disponível em: <https://doi.org/10.1016/j.eswa.2017.12.016>. Acesso em: 8 mar. 2026.
+LI, Qinghua. Research on Bank Credit Risk Assessment Based on BP Neural Network. In: International Conference on 3D Immersion, Interaction and Multi-sensory Experiences (ICDIIME), 2023.
 
-YEH, I-Cheng; LIEN, Che-hui. **The comparisons of data mining techniques for the predictive accuracy of probability of default of credit card clients**. Expert Systems with Applications, 2009. Disponível em: <https://doi.org/10.1016/j.eswa.2007.12.020>. Acesso em: 8 mar. 2026.
+XIA, Yufei et al. A boosted decision tree approach using Bayesian hyper-parameter optimization for credit scoring. Expert Systems with Applications, 2018.
+
