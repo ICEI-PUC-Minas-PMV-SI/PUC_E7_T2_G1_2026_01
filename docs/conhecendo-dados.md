@@ -1,17 +1,51 @@
-# Conhecendo os dados
-
-Nesta seção, deverá ser registrada uma detalhada análise descritiva e exploratória sobre a base de dados selecionada na Etapa 1 com o objetivo de compreender a estrutura dos dados, detectar eventuais _outliers_ e também, avaliar/detectar as relações existentes entre as variáveis analisadas.
-
-Para isso, sugere-se que sejam utilizados cálculos de medidas de tendência central, como média, mediana e moda, para entender a centralidade dos dados; sejam exploradas medidas de dispersão como desvio padrão e intervalos interquartil para avaliar a variabilidade dos dados; sejam utilizados gráficos descritivos como histogramas e box plots, para representar visualmente as características essenciais dos dados, pois essas visualizações podem facilitar a identificação de padrões e anomalias; sejam analisadas as relações entre as variáveis por meio de análise de correlação, gráficos de dispersões, mapas de calor, entre outras técnicas. 
-
-Inclua nesta seção, gráficos, tabelas, trechos de código e demais artefatos que você considere relevantes para entender os dados com os quais você irá trabalhar.  Além disso, inclua e comente os trechos de código mais relevantes desenvolvidos para realizar suas análises. Na pasta "src", inclua o código fonte completo.
-
-## Descrição dos achados
-
-A partir da análise descrita e exploratória realizada, descreva todos os achados considerados relevantes para o contexto em que o trabalho se insere. Por exemplo: com relação à centralidade dos dados algo chamou a atenção? Foi possível identificar correlação entre os atributos? Que tipo de correlação (forte, fraca, moderada)? 
-
-## Ferramentas utilizadas
-
-Existem muitas ferramentas diferentes que podem ser utilizadas para fazer a análise dos dados. Nesta seção, descreva as ferramentas/tecnologias utilizadas e sua aplicação. Vale destacar que, preferencialmente, as análises deverão ser realizadas utilizando a linguagem de programação Python.
 
 
+
+---
+
+## 📦 Dataset
+
+| Campo | Detalhe |
+|---|---|
+| **Fonte** | [Kaggle – Credit Analysis Dataset](https://www.kaggle.com/datasets/kapoorshivam/credit-analysis/data) |
+| **Registros** | ~307.511 clientes |
+| **Colunas originais** | 122 features + 1 target |
+| **Variável alvo** | `TARGET` (0 = Bom Pagador / 1 = Inadimplente) |
+| **Desbalanceamento** | ~91,93% bons pagadores / ~8,07% inadimplentes |
+
+> 📓 Este estudo foi desenvolvido originalmente no Google Colab. Você pode acessar o notebook interativo completo, com todas as células executadas e visualizações geradas, pelo link abaixo:
+>
+> 🔗 [Abrir no Google Colab](https://colab.research.google.com/drive/1p_bgm8KbK72PYLjoUXXOBhnsmbQv1uPS?usp=sharing)
+
+### Colunas principais
+
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| `TARGET` | int | Risco de crédito: `0` = Bom Pagador / `1` = Inadimplente |
+| `EXT_SOURCE_2` | float | Score externo de crédito (fonte 2) |
+| `EXT_SOURCE_3` | float | Score externo de crédito (fonte 3) |
+| `DAYS_BIRTH` | int | Dias desde o nascimento (negativo — relativo à data da solicitação) |
+| `AMT_CREDIT` | float | Valor do crédito solicitado |
+| `DAYS_EMPLOYED` | int | Dias desde o início do emprego atual (negativo) |
+| `AMT_ANNUITY` | float | Valor da anuidade do crédito |
+| `AMT_INCOME_TOTAL` | float | Renda total declarada do cliente |
+| `DAYS_REGISTRATION` | int | Dias desde o último registro (negativo) |
+| `DAYS_ID_PUBLISH` | int | Dias desde a publicação do documento de identidade (negativo) |
+| `DAYS_LAST_PHONE_CHANGE` | int | Dias desde a última troca de telefone (negativo) |
+
+> **Nota sobre variáveis temporais negativas:** as colunas com prefixo `DAYS_` armazenam o tempo como número de dias relativos à data da solicitação, onde `hoje = 0`. Eventos passados são representados por valores negativos. Exemplo: `DAYS_BIRTH = -14.600` → cliente com ~40 anos de idade.
+
+---
+
+## 1. Coleta dos Dados
+
+O download é realizado automaticamente via `kagglehub`, sem necessidade de baixar o arquivo manualmente:
+
+```python
+import kagglehub
+
+path = kagglehub.dataset_download("kapoorshivam/credit-analysis")
+df = pd.read_csv(os.path.join(path, 'current_app.csv'))
+```
+
+---
