@@ -8,7 +8,7 @@ Este projeto tem como foco o desenvolvimento e a avaliação de um modelo predit
 
 O projeto se justifica pela relevância do tema no cenário econômico atual e pela oportunidade de explorar técnicas de ciência de dados em um problema com impacto direto na redução de perdas financeiras por inadimplência. O público-alvo inclui profissionais e organizações que atuam em instituições que oferecem serviços de crédito, como bancos, fintechs e cooperativas financeiras.
 
----
+
 
 ## Problema
 
@@ -22,7 +22,6 @@ Entre os principais desafios enfrentados pelas instituições, destacam-se:
 
 Nesse cenário, torna-se evidente a necessidade de soluções baseadas em análise de dados que permitam identificar padrões de comportamento financeiro e prever a probabilidade de inadimplência com maior precisão e de forma reprodutível.
 
---- 
 
 ## Questão de pesquisa
 
@@ -32,7 +31,7 @@ Diante do cenário apresentado, a presente pesquisa busca responder à seguinte 
 
 Essa questão delimita o problema em torno da classificação binária de risco (bom pagador / mau pagador) no momento da solicitação, orientando a escolha dos algoritmos, das métricas de avaliação e dos critérios de sucesso do projeto.
 
----
+
 ## Objetivos preliminares
 
 ### Objetivo Geral
@@ -48,7 +47,6 @@ Desenvolver e avaliar um modelo preditivo de classificação de risco de crédit
 - Analisar a importância das variáveis do dataset para compreender quais fatores possuem maior influência na previsão do risco de crédito.
 - Discutir aspectos éticos, de privacidade e de viés algorítmico associados ao uso de dados financeiros e demográficos em modelos de classificação de crédito.
 
----
 
 ## Justificativa
 
@@ -60,13 +58,11 @@ O uso do Credit Analysis Dataset, disponibilizado publicamente na plataforma Kag
 
 Assim, o projeto contribui tanto para o desenvolvimento de competências técnicas em ciência de dados quanto para a reflexão crítica sobre o uso responsável de modelos preditivos em contextos de alto impacto social e financeiro.
 
---- 
 
 ## Público-Alvo
 
 O principal público-alvo são analistas de crédito, gestores financeiros e equipes de ciência de dados em instituições financeiras, bancos, fintechs e cooperativas que necessitam avaliar o risco associado à concessão de crédito. Essas organizações lidam com grandes volumes de solicitações e precisam de ferramentas que complementem os métodos tradicionais de análise, tornando o processo mais eficiente e fundamentado em evidências.
 
----
 
 ## Estado da arte
 
@@ -96,7 +92,6 @@ Os cinco estudos selecionados convergem para conclusões diretamente aplicáveis
 
 **Sobre variáveis preditivas:** os estudos analisados identificam como variáveis de maior poder preditivo o histórico de pagamento, a situação da conta bancária, o valor e a duração do crédito, e a relação dívida/renda — todas com correspondentes no Credit Analysis Dataset selecionado (`Checking account`, `Saving accounts`, `Credit amount`, `Duration`), validando a adequação do dataset ao problema proposto.
 
----
 
 ## Ética em Pesquisa, Privacidade e LGPD
 
@@ -113,6 +108,8 @@ Em aplicações reais, instituições que utilizam esse tipo de dado para decis�
 - A obrigação de transparência sobre os critérios utilizados na tomada de decisão.
 
 No contexto deste projeto acadêmico, os dados são utilizados exclusivamente para fins educacionais e de pesquisa, sem identificação de pessoas reais, o que está em conformidade com os princípios da LGPD e com os termos de uso da plataforma Kaggle.
+
+## Descrição do *dataset* selecionado
 
 ### Identificação e origem
 
