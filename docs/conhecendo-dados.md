@@ -48,6 +48,48 @@ path = kagglehub.dataset_download("kapoorshivam/credit-analysis")
 df = pd.read_csv(os.path.join(path, 'current_app.csv'))
 ```
 
+---
+
+## 2. Análise Exploratória dos Dados (EDA)
+
+### Objetivos
+
+- Entender os dados brutos recebidos
+- Detectar valores ausentes, duplicados ou inconsistências
+- Explorar a distribuição das variáveis (tendência, dispersão, outliers)
+- Avaliar o balanceamento das classes no target
+- Verificar correlações iniciais entre variáveis
+- Identificar problemas de escala, unidades ou codificação de categorias
+
+---
+
+### 2.1 Balanceamento do Target
+
+Os dados apresentam um conjunto **fortemente desequilibrado**:
+
+| Classe | Registros | Percentual |
+|--------|-----------|------------|
+| `0` — Bom Pagador | 282.686 | 91,93% |
+| `1` — Inadimplente | 24.825 | 8,07% |
+
+#### Problemas do dataset desbalanceado
+
+- **Viés do modelo:** o algoritmo tende a prever sempre a classe majoritária (`0`), porque assim já alcança alta acurácia, ignorando os inadimplentes — justamente os que mais importa identificar.
+- **Métricas enganosas:** um modelo que prevê `0` para todos acerta 91,93%, mas é completamente inútil para detectar inadimplência.
+- **Baixa generalização:** o modelo não aprende a identificar corretamente os inadimplentes.
+
+#### O que foi feito
+
+| Ação | Técnica |
+|------|---------|
+| Reequilíbrio dos dados | SMOTE (Synthetic Minority Oversampling Technique) |
+| Ajuste do treinamento | `class_weight='balanced'` no Random Forest |
+| Métricas adequadas | Precisão, Recall, F1-score, ROC-AUC, Matriz de Confusão |
+
+> No contexto de crédito, **não identificar um inadimplente (falso negativo) é geralmente mais custoso** do que recusar um bom pagador (falso positivo), o que reforça a importância de priorizar o **recall na classe `1`**.
+
+---
+
 ### 2.2 Pairplot
 
 O pairplot compara as principais variáveis financeiras numéricas duas a duas, segmentado pela classificação de risco (`TARGET`).
