@@ -58,6 +58,39 @@ df = pd.read_csv(os.path.join(path, 'current_app.csv'))
 
 ---
 
+### 2.4 Histogramas
+
+![Histogramas](https://github.com/ICEI-PUC-Minas-PMV-SI/PUC_E7_T2_G1_2026_01/raw/main/docs/img/Histograma1.png)
+
+![Histogramas](https://github.com/ICEI-PUC-Minas-PMV-SI/PUC_E7_T2_G1_2026_01/raw/main/docs/img/Histograma2.png)
+
+![Histogramas](https://github.com/ICEI-PUC-Minas-PMV-SI/PUC_E7_T2_G1_2026_01/raw/main/docs/img/Histograma3.png)
+
+
+- `AMT_CREDIT` e `AMT_ANNUITY`: distribuições assimétricas à direita, com sobreposição quase completa entre as classes — **baixo poder discriminatório isolado**.
+- `DAYS_BIRTH`: inadimplentes concentram-se em idades mais jovens.
+- `AMT_INCOME_TOTAL`: inadimplentes tendem a se concentrar em faixas de renda mais baixa.
+- `DAYS_EMPLOYED`: anomalia dos ~365.000 dias confirmada nas duas classes.
+
+---
+
+### 2.5 Matriz de Correlação
+
+![Matriz de Correlação](https://github.com/ICEI-PUC-Minas-PMV-SI/PUC_E7_T2_G1_2026_01/raw/main/docs/img/Matriz%20de%20Correla%C3%A7%C3%A3o%20(Mapa%20de%20Calor).png)
+
+| Par de Variáveis | Correlação | Interpretação |
+|------------------|------------|---------------|
+| `AMT_CREDIT × AMT_GOODS_PRICE` | **0.99** | Multicolinearidade gravíssima — variáveis praticamente idênticas |
+| `AMT_CREDIT × AMT_ANNUITY` | **0.77** | Correlação forte — esperada no contexto de crédito |
+| `AMT_ANNUITY × AMT_GOODS_PRICE` | **0.78** | Correlação forte pelo mesmo motivo |
+| `DAYS_BIRTH × DAYS_EMPLOYED` | **-0.62** | Correlação negativa moderada — clientes mais velhos têm mais tempo de emprego |
+| `DAYS_BIRTH × TARGET` | **+0.08** | Clientes mais jovens têm leve tendência à inadimplência |
+
+> **Nenhuma variável apresenta correlação linear significativa com o TARGET**, indicando que os padrões de risco são **não lineares e complexos** — o que reforça a escolha de algoritmos como Random Forest e XGBoost.
+
+---
+
+
 ### 2.6 Variance Inflation Factor (VIF)
 
 O VIF mede o quanto a variância de um coeficiente é inflada devido à multicolinearidade.
