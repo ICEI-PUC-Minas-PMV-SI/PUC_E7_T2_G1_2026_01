@@ -48,10 +48,48 @@ path = kagglehub.dataset_download("kapoorshivam/credit-analysis")
 df = pd.read_csv(os.path.join(path, 'current_app.csv'))
 ```
 
+### 2.2 Pairplot
+
+O pairplot compara as principais variáveis financeiras numéricas duas a duas, segmentado pela classificação de risco (`TARGET`).
+
+![Gráficos Pairplot](https://github.com/ICEI-PUC-Minas-PMV-SI/PUC_E7_T2_G1_2026_01/raw/main/docs/img/Pairplot.png)
+
+![Gráficos Pairplot “Balanceado”](https://github.com/ICEI-PUC-Minas-PMV-SI/PUC_E7_T2_G1_2026_01/raw/main/docs/img/Gr%C3%A1ficos%20Pairplot%20%E2%80%9CBalanceado%E2%80%9D.png)
+
+| Variáveis comparadas | O que se observa |
+|----------------------|-----------------|
+| `AMT_CREDIT × AMT_GOODS_PRICE` | Correlação quase linear — o valor do crédito acompanha o preço do bem financiado |
+| `AMT_CREDIT × AMT_ANNUITY` | Correlação positiva moderada — créditos maiores tendem a gerar anuidades maiores |
+| `AMT_INCOME_TOTAL × AMT_CREDIT` | Fraca correlação — clientes de diferentes rendas solicitam valores similares de crédito |
+| `DAYS_BIRTH × AMT_CREDIT` | Distribuição espalhada — a idade não determina diretamente o valor do crédito |
+| `DAYS_EMPLOYED × demais` | Presença de valores extremos (~365.000 dias), indicando anomalia nos dados |
+
+> Os inadimplentes não formam regiões claramente separadas, reforçando a necessidade de técnicas de balanceamento e modelos mais sofisticados.
+
 ---
 
+### 2.3 Boxplots
 
+![Boxplots](https://github.com/ICEI-PUC-Minas-PMV-SI/PUC_E7_T2_G1_2026_01/raw/main/docs/img/Boxplot1.png)
 
+![Boxplots](https://github.com/ICEI-PUC-Minas-PMV-SI/PUC_E7_T2_G1_2026_01/raw/main/docs/img/Boxplot2.png)
+
+![Boxplots](https://github.com/ICEI-PUC-Minas-PMV-SI/PUC_E7_T2_G1_2026_01/raw/main/docs/img/Boxplot3png)
+
+![Boxplots](https://github.com/ICEI-PUC-Minas-PMV-SI/PUC_E7_T2_G1_2026_01/raw/main/docs/img/Boxplot4.png)
+
+![Boxplots](https://github.com/ICEI-PUC-Minas-PMV-SI/PUC_E7_T2_G1_2026_01/raw/main/docs/img/Boxplot5.png)
+
+| Variável | O que se observa |
+|----------|-----------------|
+| `AMT_CREDIT` | Medianas praticamente iguais entre as classes. Baixo poder discriminatório isolado. |
+| `AMT_ANNUITY` | Distribuições muito similares. Pouco poder de separação isolado. |
+| `AMT_INCOME_TOTAL` | Outlier extremo (~1,2 × 10⁸) na classe inadimplente. Exige tratamento. |
+| `AMT_GOODS_PRICE` | Comportamento muito semelhante ao `AMT_CREDIT`. Confirma alta correlação. |
+| `DAYS_BIRTH` | **Maior diferença visual entre as classes.** Inadimplentes são mais jovens (mediana ~38 anos vs ~44 anos). |
+| `DAYS_EMPLOYED` | Confirma a anomalia: outliers em ~365.000 dias. Exige tratamento obrigatório. |
+
+---
 
 
 
