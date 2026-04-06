@@ -17,6 +17,9 @@ um modelo capaz de prever o risco de inadimplência com base em variáveis como:
 Ao final queremos saber o seguinte: "Dado o perfil financeiro de um cliente, qual é a
 probabilidade de ele ser classificado como bom ou mau pagador?"
 
+> 📓 Este estudo foi desenvolvido originalmente no Google Colab. Você pode acessar o notebook interativo completo, com todas as células executadas e visualizações geradas, pelo link abaixo:
+>
+> 🔗 [Abrir no Google Colab](https://colab.research.google.com/drive/1p_bgm8KbK72PYLjoUXXOBhnsmbQv1uPS?usp=sharing)
 ---
 
 ## 🎯 Objetivo
@@ -44,9 +47,6 @@ O projeto desenvolve um modelo preditivo capaz de identificar o risco de inadimp
 | **Variável alvo** | `TARGET` (0 = Bom Pagador / 1 = Inadimplente) |
 | **Desbalanceamento** | ~91,93% bons pagadores / ~8,07% inadimplentes |
 
-> 📓 Este estudo foi desenvolvido originalmente no Google Colab. Você pode acessar o notebook interativo completo, com todas as células executadas e visualizações geradas, pelo link abaixo:
->
-> 🔗 [Abrir no Google Colab](https://colab.research.google.com/drive/1p_bgm8KbK72PYLjoUXXOBhnsmbQv1uPS?usp=sharing)
 
 ### Colunas principais
 
