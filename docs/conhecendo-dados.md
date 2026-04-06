@@ -1,5 +1,36 @@
+# Predição de Inadimplência em Análise de Crédito
 
+Este projeto aplica técnicas de ciência de dados e aprendizado de máquina para desenvolver
+um modelo preditivo de risco de crédito, utilizando o dataset Credit Analysis, disponível
+na plataforma Kaggle.
 
+Vamos explorar, pré-processar e modelar dados do perfil financeiro de clientes para treinar
+um modelo capaz de prever o risco de inadimplência com base em variáveis como:
+
+- Idade do cliente (Age)
+- Valor do crédito solicitado (Credit amount)
+- Duração do crédito (Duration)
+- Situação da conta poupança (Saving accounts)
+- Situação da conta corrente (Checking account)
+- Finalidade do crédito (Purpose)
+
+Ao final queremos saber o seguinte: "Dado o perfil financeiro de um cliente, qual é a
+probabilidade de ele ser classificado como bom ou mau pagador?"
+
+---
+
+## 🎯 Objetivo
+
+> *"Dado o perfil financeiro de um cliente, qual é a probabilidade de ele ser classificado como bom ou mau pagador?"*
+
+O projeto desenvolve um modelo preditivo capaz de identificar o risco de inadimplência com base em variáveis como:
+
+- Idade do cliente (`DAYS_BIRTH`)
+- Valor do crédito solicitado (`AMT_CREDIT`)
+- Anuidade do crédito (`AMT_ANNUITY`)
+- Renda total (`AMT_INCOME_TOTAL`)
+- Tempo de emprego (`DAYS_EMPLOYED`)
+- Scores externos (`EXT_SOURCE_2`, `EXT_SOURCE_3`)
 
 ---
 
