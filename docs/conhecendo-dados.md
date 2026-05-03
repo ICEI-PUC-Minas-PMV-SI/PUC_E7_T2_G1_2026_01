@@ -332,7 +332,7 @@ O tratamento foi realizado em três etapas:
 - `NAME_TYPE_SUITE`: tipo de acompanhante na solicitação.
 - `OCCUPATION_TYPE`: ocupação do cliente — a categoria `'desconhecido'` preserva a informação de que o cliente não declarou ocupação, o que pode ser um sinal de risco.
 
-**Resultado: 0 valores nulos restantes. Shape final: 307.511 × 74 colunas.**
+**Resultado: 0 valores nulos restantes. Shape final: 307.511 × 73 colunas.**
 
 ---
 
@@ -362,113 +362,64 @@ df['DAYS_EMPLOYED'] = df['DAYS_EMPLOYED'].fillna(mediana)
 
 ### 3.4 Remoção de Variável Redundante
 
-Com base no VIF (**39.51**) e na correlação de **0.99** com `AMT_CREDIT`, a variável `AMT_GOODS_PRICE` foi removida por ser redundante, evitando multicolinearidade na modelagem.
+Com base no VIF (39.51) e na correlação de 0.99 com `AMT_CREDIT`, a variável `AMT_GOODS_PRICE` foi removida por ser redundante, evitando multicolinearidade na modelagem.
 
 ```
 Shape final após pré-processamento: 307.511 × 73 colunas
 ```
 ---
 
-# 4 Ética, Privacidade e LGPD
+## 4.0 Ética, Privacidade e LGPD
  
-> Esta seção atende a uma exigência *obrigatória* da etapa de conhecimento dos dados:
-discutir as implicações éticas, de privacidade e de proteção de dados envolvidas em um
-projeto de *predição de inadimplência em análise de crédito*. Por se tratar de um caso
-de uso que toma — ou apoia — *decisões automatizadas* sobre pessoas, com consequências
-financeiras concretas, a reflexão ética não é acessória; é parte do projeto.
+Esta seção busca discutir as implicações éticas, de privacidade e de proteção de dados envolvidas em um projeto de predição de inadimplência em análise de crédito. Por se tratar de um caso de uso que toma ou apoia decisões automatizadas sobre pessoas, com consequências financeiras concretas, a reflexão ética não é acessória; é parte do projeto.
  
-## 4.1 Sensibilidade dos dados utilizados
+### 4. Sensibilidade dos dados utilizados
  
-O dataset utilizado contém um conjunto de informações **pessoais e financeiras de alta
-sensibilidade**:
-> * *Dados financeiros*: renda total declarada (AMT_INCOME_TOTAL), valor do crédito
-solicitado (AMT_CREDIT), anuidade (AMT_ANNUITY), valor de bens financiados
-(AMT_GOODS_PRICE);
-> * *Dados demográficos*: idade (DAYS_BIRTH), gênero (CODE_GENDER), estado civil
-(NAME_FAMILY_STATUS), número de filhos (CNT_CHILDREN);
-> * *Dados socioeconômicos*: escolaridade (NAME_EDUCATION_TYPE), tipo de renda
-(NAME_INCOME_TYPE), ocupação (OCCUPATION_TYPE), tipo da organização
-(ORGANIZATION_TYPE), tipo de moradia (NAME_HOUSING_TYPE);
-> * *Dados comportamentais*: scores externos (EXT_SOURCE_1/2/3), tempo desde o último
-contato (DAYS_LAST_PHONE_CHANGE), tempo de registro (DAYS_REGISTRATION).
+O dataset utilizado contém um conjunto de informações pessoais e financeiras de alta
+sensibilidade:
+* *Dados financeiros*: renda total declarada (AMT_INCOME_TOTAL), valor do crédito solicitado (AMT_CREDIT), anuidade (AMT_ANNUITY), valor de bens financiados (AMT_GOODS_PRICE);
+* *Dados demográficos*: idade (DAYS_BIRTH), gênero (CODE_GENDER), estado civil (NAME_FAMILY_STATUS), número de filhos (CNT_CHILDREN);
+* *Dados socioeconômicos*: escolaridade (NAME_EDUCATION_TYPE), tipo de renda (NAME_INCOME_TYPE), ocupação (OCCUPATION_TYPE), tipo da organização (ORGANIZATION_TYPE), tipo de moradia (NAME_HOUSING_TYPE);
+* *Dados comportamentais*: scores externos (EXT_SOURCE_1/2/3), tempo desde o último contato (DAYS_LAST_PHONE_CHANGE), tempo de registro (DAYS_REGISTRATION).
+
+Embora o SK_ID_CURR seja apenas um identificador interno e não revele identidade direta, a combinação dessas variáveis pode permitir reidentificação indireta dos clientes, especialmente quando cruzadas com bases externas. Esse é um risco clássico de reidentificação que exige cuidado especial no manuseio dos dados.
  
-Embora o SK_ID_CURR seja apenas um identificador interno e não revele identidade direta,
-a combinação dessas variáveis pode permitir reidentificação indireta dos clientes,
-especialmente quando cruzadas com bases externas. Esse é um risco clássico de
-*reidentificação* que exige cuidado especial no manuseio dos dados.
- 
-## 4.2 LGPD — Lei Geral de Proteção de Dados (Lei 13.709/2018)
+### 4.2 LGPD — Lei Geral de Proteção de Dados (Lei 13.709/2018)
  
 No contexto brasileiro, um projeto desse tipo está sujeito à *LGPD*. Os principais
 pontos a observar são:
  
-> * *Base legal de tratamento (art. 7º)*: dados pessoais só podem ser tratados com
-amparo em uma das hipóteses legais. Em concessão de crédito, a base mais comum é
-*execução de contrato* ou *legítimo interesse*, sempre respeitando o teste de
-proporcionalidade.
-> * *Finalidade (art. 6º, I): os dados devem ser usados **apenas* para a finalidade
-informada — analisar risco de crédito. Não podem ser reaproveitados para marketing,
-venda de outros produtos, ou cessão a terceiros sem nova base legal.
-> * *Adequação e necessidade (art. 6º, II e III)*: só podem ser coletadas variáveis
-estritamente necessárias para a análise. Variáveis demográficas redundantes ou que não
-contribuem para o desempenho do modelo devem ser descartadas (princípio da minimização).
-> * *Transparência e informação (art. 6º, VI; art. 9º)*: o cliente deve saber **quais
-dados** são tratados, *com que finalidade, **por quanto tempo* e quais são seus direitos.
-> * *Direito à revisão de decisões automatizadas (art. 20)*: o titular tem o **direito
-expresso** de solicitar revisão humana de decisões tomadas por sistemas automatizados que
-afetem seus interesses. Em um modelo de crédito, isso significa que **toda decisão de
-recusa baseada apenas no modelo deve poder ser revista por uma pessoa**.
-> * *Segurança e prevenção (art. 46)*: os dados devem ser protegidos por medidas
-técnicas e administrativas adequadas (criptografia, controle de acesso, registro de
-operações), inclusive durante o treinamento e a operação do modelo.
-> * *Dados sensíveis (art. 5º, II; art. 11)*: a LGPD trata de forma especial dados
-sobre origem racial/étnica, convicção religiosa, saúde, orientação sexual, entre outros.
-Este dataset *não contém* explicitamente essas categorias — mas algumas variáveis (como
-ORGANIZATION_TYPE) podem, em casos limítrofes, atuar como *proxy* para dados
-sensíveis e exigir avaliação cuidadosa.
+* *Base legal de tratamento (art. 7º)*: dados pessoais só podem ser tratados com amparo em uma das hipóteses legais. Em concessão de crédito, a base mais comum é execução de contrato ou legítimo interesse, sempre respeitando o teste de proporcionalidade.
+* *Finalidade (art. 6º, I): os dados devem ser usados apenas para a finalidade informada — analisar risco de crédito. Não podem ser reaproveitados para marketing, venda de outros produtos, ou cessão a terceiros sem nova base legal.
+* *Adequação e necessidade (art. 6º, II e III)*: só podem ser coletadas variáveis estritamente necessárias para a análise. Variáveis demográficas redundantes ou que não contribuem para o desempenho do modelo devem ser descartadas (princípio da minimização).
+* *Transparência e informação (art. 6º, VI; art. 9º)*: o cliente deve saber quais dados são tratados, com que finalidade, por quanto tempo e quais são seus direitos.
+* *Direito à revisão de decisões automatizadas (art. 20)*: o titular tem o direito expresso de solicitar revisão humana de decisões tomadas por sistemas automatizados que afetem seus interesses. Em um modelo de crédito, isso significa que toda decisão de recusa baseada apenas no modelo deve poder ser revista por uma pessoa.
+* *Segurança e prevenção (art. 46)*: os dados devem ser protegidos por medidas técnicas e administrativas adequadas (criptografia, controle de acesso, registro de operações), inclusive durante o treinamento e a operação do modelo.
+* *Dados sensíveis (art. 5º, II; art. 11)*: a LGPD trata de forma especial dados sobre origem racial/étnica, convicção religiosa, saúde, orientação sexual, entre outros. Este dataset não contém explicitamente essas categorias — mas algumas variáveis (como ORGANIZATION_TYPE) podem, em casos limítrofes, atuar como proxy para dados sensíveis e exigir avaliação cuidadosa.
  
-## 4.3 Vieses, discriminação e variáveis sensíveis
+### 4.3 Vieses, discriminação e variáveis sensíveis
  
 Mesmo sem dados sensíveis explícitos, **um modelo de crédito pode reproduzir e
 amplificar desigualdades históricas**. Os principais riscos identificados nesta base são:
  
-> * *Gênero (CODE_GENDER)*: incluir gênero como variável preditiva pode levar o modelo
-a tratar clientes de forma diferente apenas pelo sexo — uma prática que pode configurar
-*discriminação direta*. Mesmo retirando a coluna, o modelo pode aprender o gênero por
-*variáveis correlacionadas* (proxy discrimination), efeito conhecido na literatura de
-"fairness in ML".
-> * *Idade (DAYS_BIRTH)*: a EDA mostrou que clientes mais jovens têm taxa de
-inadimplência maior. Usar idade como preditor pode penalizar sistematicamente jovens —
-inclusive aqueles com bom histórico individual. É preciso avaliar se essa diferenciação é
-justificável e proporcional.
-> * *Estado civil e número de filhos (NAME_FAMILY_STATUS, CNT_CHILDREN)*: podem
-penalizar mães solo, casais sem filhos, divorciados, etc., reforçando estereótipos
-sociais.
-> * *Tipo de moradia / ocupação / organização*: podem atuar como **proxy de classe
-social, território (CEP de origem dos dados em outros datasets), ou raça**. Mesmo sem
-intenção, um modelo treinado nesses dados pode reproduzir desigualdades estruturais.
+* *Gênero (CODE_GENDER)*: incluir gênero como variável preditiva pode levar o modelo a tratar clientes de forma diferente apenas pelo sexo — uma prática que pode configurar discriminação direta. Mesmo retirando a coluna, o modelo pode aprender o gênero por variáveis correlacionadas (proxy discrimination), efeito conhecido na literatura de "fairness in ML".
+* *Idade (DAYS_BIRTH)*: a EDA mostrou que clientes mais jovens têm taxa de inadimplência maior. Usar idade como preditor pode penalizar sistematicamente jovens, inclusive aqueles com bom  histórico individual. É preciso avaliar se essa diferenciação é justificável e proporcional.
+* *Estado civil e número de filhos (NAME_FAMILY_STATUS, CNT_CHILDREN)*: podem penalizar mães solo, casais sem filhos, divorciados, etc., reforçando estereótipos sociais.
+* *Tipo de moradia / ocupação / organização*: podem atuar como proxy de classe social, território (CEP de origem dos dados em outros datasets), ou raça. Mesmo sem intenção, um modelo treinado nesses dados pode reproduzir desigualdades estruturais.
  
-> *Recomendação prática:* na etapa de modelagem, devem ser executados **testes de
-fairness** comparando taxas de aprovação, falsos positivos e falsos negativos entre
-subgrupos demográficos (gênero, faixa etária, escolaridade), e o resultado deve ser
-documentado.
  
-## 4.4 Explicabilidade do modelo
+### 4.4 Explicabilidade do modelo
  
 A LGPD garante o direito do titular obter explicações sobre decisões automatizadas
 (art. 20). Por isso, modelos "caixa-preta" puros não atendem aos requisitos legais. Em
 um cenário de produção, deve-se:
  
-> * *Preferir modelos interpretáveis* quando o desempenho for comparável (regressão
-logística, árvores rasas, modelos aditivos);
-> * Quando forem usados modelos complexos (Random Forest, XGBoost, redes neurais),
-*aplicar técnicas de explicabilidade* como *SHAP, **LIME* ou **importância por
-permutação**, capazes de gerar explicações por decisão individual;
-> * *Manter um canal de revisão humana* para clientes que tiverem o crédito recusado;
-> * *Documentar* as principais variáveis usadas e o impacto de cada uma na decisão,
-em linguagem clara para o titular.
+* *Preferir modelos interpretáveis* quando o desempenho for comparável (regressão logística, árvores rasas, modelos aditivos);
+* Quando forem usados modelos complexos (Random Forest, XGBoost, redes neurais),aplicar técnicas de explicabilidade como SHAP, LIME ou importância por permutação, capazes de gerar explicações por decisão individual;
+* *Manter um canal de revisão humana* para clientes que tiverem o crédito recusado;
+* *Documentar* as principais variáveis usadas e o impacto de cada uma na decisão, em linguagem clara para o titular.
  
-## 4.5 Impacto dos falsos positivos e falsos negativos
+### 4.5 Impacto dos falsos positivos e falsos negativos
  
 Erros de classificação têm **consequências assimétricas e diferentes para cada parte
 envolvida**:
@@ -478,40 +429,24 @@ envolvida**:
 | *Falso Positivo (FP)*     | Modelo classifica um *bom pagador* como inadimplente | Crédito recusado indevidamente, cliente penalizado financeiramente, possível dano à reputação cadastral, *exclusão financeira* | Perda de receita; cliente migra para concorrente          |
 | *Falso Negativo (FN)*     | Modelo classifica um *inadimplente* como bom pagador | (Nenhum impacto direto sobre o cliente — recebe o crédito)                      | *Perda financeira direta* com inadimplência; aumento do provisionamento |
  
-Do ponto de vista da instituição, FN tende a ser mais custoso. Mas do ponto de vista do cliente e da sociedade, FP pode ser igualmente ou mais
-grave: significa negar acesso a crédito a quem teria honrado o compromisso, com
-impactos potencialmente sérios em vida pessoal, saúde mental, capacidade de empreender e
-mobilidade social. Um modelo "tecnicamente bom" para a instituição pode ser socialmente
-nocivo se concentrar FPs em determinados grupos demográficos.
+Do ponto de vista da instituição, FN tende a ser mais custoso. Mas do ponto de vista do cliente e da sociedade, FP pode ser igualmente ou mais grave: significa negar acesso a crédito a quem teria honrado o compromisso, com impactos potencialmente sérios em vida pessoal, saúde mental, capacidade de empreender e mobilidade social. Um modelo "tecnicamente bom" para a instituição pode ser socialmente nocivo se concentrar FPs em determinados grupos demográficos.
  
-Por isso, a escolha do limiar de decisão e o monitoramento de disparidades entre
-grupos não é apenas uma questão técnica, é uma questão ética que precisa ser tomada de
-forma transparente e justificada, idealmente com a participação de áreas de
-compliance, jurídico e DPO (Encarregado pela Proteção de Dados).
+Por isso, a escolha do limiar de decisão e o monitoramento de disparidades entre grupos não é apenas uma questão técnica, é uma questão ética que precisa ser tomada de forma transparente e justificada, idealmente com a participação de áreas de compliance, jurídico e DPO (Encarregado pela Proteção de Dados).
  
-## 4.6 Boas práticas adotadas 
+### 4.6 Boas práticas adotadas 
  
 Algumas decisões já tomadas neste trabalho, mesmo sem rotulação explícita, contribuem
 para a conformidade e a ética:
-> * *Anonimização*: o dataset utilizado já vem anonimizado (apenas SK_ID_CURR como
-identificador, sem nome, CPF ou contato);
-> * *Minimização*: variáveis com mais de 40% de nulos foram removidas, reduzindo a
-quantidade de dados pessoais armazenados desnecessariamente;
-> * *Diagnóstico de redundância*: o uso de matriz de correlação e VIF para descartar
-variáveis redundantes (AMT_GOODS_PRICE) também atende ao princípio da minimização;
-> * *Documentação*: este notebook documenta o que é feito com cada variável, o que
-favorece auditoria e prestação de contas (accountability).
+* *Anonimização*: o dataset utilizado já vem anonimizado (apenas SK_ID_CURR como identificador, sem nome, CPF ou contato);
+* *Minimização*: variáveis com mais de 40% de nulos foram removidas, reduzindo a quantidade de dados pessoais armazenados desnecessariamente;
+* *Diagnóstico de redundância*: o uso de matriz de correlação e VIF para descartar variáveis redundantes (AMT_GOODS_PRICE) também atende ao princípio da minimização;
+* *Documentação*: este notebook documenta o que é feito com cada variável, o que favorece auditoria e prestação de contas (accountability).
  
-## 4.7 Próximos passos recomendados
+### 4.7 Próximos passos recomendados
  
-Para que o projeto esteja em plena conformidade ética e legal antes de qualquer uso em
-produção, recomenda-se:
-> 1. Realizar *avaliação de impacto à proteção de dados (RIPD/DPIA)*, conforme art. 38
-da LGPD;
-> 2. Implementar *testes de fairness* por gênero, faixa etária e escolaridade na etapa
-de avaliação do modelo;
-> 3. Implementar *explicabilidade individual* (ex.: SHAP) para suportar o direito à
-revisão de decisões automatizadas;
-> 4. Definir *políticas de retenção e descarte* dos dados de treinamento;
-> 5. Estabelecer *processo de monitoramento contínuo* do modelo em produção, incluindo
-detecção de drift e auditoria de viés.
+Para que o projeto esteja em plena conformidade ética e legal antes de qualquer uso em produção, recomenda-se:
+1. Realizar *avaliação de impacto à proteção de dados (RIPD/DPIA)*, conforme art. 38 da LGPD;
+2. Implementar *testes de fairness* por gênero, faixa etária e escolaridade na etapa de avaliação do modelo;
+3. Implementar *explicabilidade individual* (ex.: SHAP) para suportar o direito à revisão de decisões automatizadas;
+4. Definir *políticas de retenção e descarte* dos dados de treinamento;
+5. Estabelecer processo de monitoramento contínuo do modelo em produção, incluindo detecção de drift e auditoria de viés.
