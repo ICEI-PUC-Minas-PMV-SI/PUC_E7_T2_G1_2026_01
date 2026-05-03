@@ -365,7 +365,7 @@ df['DAYS_EMPLOYED'] = df['DAYS_EMPLOYED'].fillna(mediana)
 Com base no VIF (39.51) e na correlação de 0.99 com `AMT_CREDIT`, a variável `AMT_GOODS_PRICE` foi removida por ser redundante, evitando multicolinearidade na modelagem.
 
 ```
-Shape final após pré-processamento: 307.511 × 73 colunas
+Shape final após pré-processamento: 307.511 × 72 colunas
 ```
 ---
 
