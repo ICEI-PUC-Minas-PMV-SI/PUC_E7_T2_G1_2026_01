@@ -668,3 +668,13 @@ As seguintes limitações são comuns aos três modelos e representam oportunida
 **Nota:** XGBoost e Regressão Logística apresentam FP rate de ~32% na configuração otimizada — ambos violam marginalmente a meta de ≤ 30%. O RF é o único modelo que atinge as três metas simultaneamente.
 
 **Consistência transversal:** os três modelos convergem para as mesmas quatro variáveis mais importantes (`EXT_SOURCE_2`, `EXT_SOURCE_3`, `DAYS_EMPLOYED`, `DAYS_BIRTH`), validando a robustez da seleção de features e a qualidade do pré-processamento aplicado.
+
+---
+
+## Google Golab:
+
+Pré-processamento + RF: https://colab.research.google.com/drive/1kyNPu03iqnTysWOoImxa9lKSQlVAASlr#scrollTo=8J6HflQRT1ZJ
+
+MODELO XG BOOST: https://colab.research.google.com/drive/1uZJyTjkNwFb2dygrBusWNWP0HXX20DWB?authuser=1#scrollTo=9d1a5910
+
+MODELO DE REGRESSÃO LOGÍSTICA: https://colab.research.google.com/drive/1WXnscggtew4jYn7WETfG5t2QWHpbfWID
