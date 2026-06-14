@@ -8,7 +8,7 @@ O sistema implantado é uma API de avaliação de risco de crédito, construída
 
 ### 1.2 Preparação do artefato do modelo
 
-O modelo foi treinado em um notebook Jupyter (XGBoost.ipynb), utilizando um pipeline scikit-learn que encapsula tanto o pré-processamento (imputação de valores nulos pela mediana) quanto o classificador XGBoost. Ao final do treinamento, esse pipeline foi serializado com `joblib.dump` em um arquivo `pipeline_xgboost_v1.pkl`, que passou a ser versionado junto ao código-fonte da API no repositório Git. Esse arquivo é o artefato central da implantação: ele é carregado uma única vez, em memória, no momento em que a aplicação inicia, e permanece disponível para todas as requisições subsequentes enquanto o processo estiver ativo.
+O modelo foi treinado em um notebook Jupyter (XGBoost.ipynb), utilizando um pipeline scikit-learn que encapsula tanto o pré-processamento (imputação de valores nulos pela mediana) quanto o classificador XGBoost. Ao final do treinamento, esse pipeline foi serializado em um arquivo `pipeline_xgboost_v1.joblib`, que passou a ser versionado junto ao código-fonte da API no repositório Git. Esse arquivo é o artefato central da implantação: ele é carregado uma única vez, em memória, no momento em que a aplicação inicia, e permanece disponível para todas as requisições subsequentes enquanto o processo estiver ativo.
 
 ### 1.3 Empacotamento da aplicação
 
@@ -24,11 +24,11 @@ Após o provisionamento, foi configurado o comando de inicialização (`bash sta
 
 ### 1.6 Pipeline de integração e entrega contínua (CI/CD)
 
-A entrega contínua foi configurada através do Deployment Center do App Service, integrado diretamente ao repositório no GitHub. Essa integração gera automaticamente um workflow de GitHub Actions, que é disparado a cada push na branch principal. O workflow realiza três etapas: build (instalação das dependências listadas no `requirements.txt` em um ambiente Python 3.11), empacotamento dos artefatos da aplicação (incluindo o arquivo `.pkl` do modelo) e deploy desse pacote para o App Service, que reinicia o processo para carregar a nova versão. Não há etapa de treinamento de modelo nesse pipeline: o modelo é tratado como um artefato estático, versionado junto ao código.
+A entrega contínua foi configurada através do Deployment Center do App Service, integrado diretamente ao repositório no GitHub. Essa integração gera automaticamente um workflow de GitHub Actions, que é disparado a cada push na branch principal. O workflow realiza três etapas: build (instalação das dependências listadas no `requirements.txt` em um ambiente Python 3.11), empacotamento dos artefatos da aplicação (incluindo o arquivo `.joblib` do modelo) e deploy desse pacote para o App Service, que reinicia o processo para carregar a nova versão. Não há etapa de treinamento de modelo nesse pipeline: o modelo é tratado como um artefato estático, versionado junto ao código.
 
 ### 1.7 Validação pós-implantação
 
-Após cada deploy, a validação é feita em três níveis: primeiro, verificação do endpoint de health check ([GET /](https://creditanalysis-ayahd8b7bpehgmat.eastus-01.azurewebsites.net/)), que confirma que a aplicação subiu e respondeu; segundo, um teste funcional do endpoint `POST /predict`, enviando um payload de exemplo e confirmando que a resposta contém a classificação e a probabilidade esperadas ([API de Predição XGBoost - Swagger UI](https://creditanalysis-ayahd8b7bpehgmat.eastus-01.azurewebsites.net/docs)); terceiro, inspeção do Log Stream do App Service, para identificar eventuais erros de inicialização, falhas de importação de bibliotecas ou problemas ao carregar o `.pkl`. 
+Após cada deploy, a validação é feita em três níveis: primeiro, verificação do endpoint de health check ([GET /](https://creditanalysis-ayahd8b7bpehgmat.eastus-01.azurewebsites.net/)), que confirma que a aplicação subiu e respondeu; segundo, um teste funcional do endpoint `POST /predict`, enviando um payload de exemplo e confirmando que a resposta contém a classificação e a probabilidade esperadas ([API de Predição XGBoost - Swagger UI](https://creditanalysis-ayahd8b7bpehgmat.eastus-01.azurewebsites.net/docs)); terceiro, inspeção do Log Stream do App Service, para identificar eventuais erros de inicialização, falhas de importação de bibliotecas ou problemas ao carregar o `.joblib`. 
 
 ### 1.8 Ciclo de atualização
 
