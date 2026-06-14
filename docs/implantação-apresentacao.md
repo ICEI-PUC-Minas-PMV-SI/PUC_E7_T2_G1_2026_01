@@ -4,7 +4,7 @@
 
 ### 1.1 Visão geral da solução
 
-O sistema implantado é uma API de avaliação de risco de crédito, construída em Python usando FastAPI, que expõe um endpoint REST capaz de receber os dados de um cliente e retornar a probabilidade estimada de inadimplência, calculada por um modelo XGBoost previamente treinado. A aplicação não possui banco de dados: ela é stateless, ou seja, cada requisição é processada de forma independente, sem persistência de histórico. Planejamos que o consumo será feito por dois tipos de clientes: o frontend hospedado na Vercel (uma interface de análise para colaboradores do banco) e outros sistemas internos do banco que integram essa API ao fluxo de concessão de crédito (por exemplo, um sistema de originação de propostas de renegociação de dividas).
+O sistema implantado é uma [API de avaliação de risco de crédito](https://creditanalysis-ayahd8b7bpehgmat.eastus-01.azurewebsites.net/docs), construída em Python usando FastAPI, que expõe um endpoint REST capaz de receber os dados de um cliente e retornar a probabilidade estimada de inadimplência, calculada por um modelo XGBoost previamente treinado. A aplicação não possui banco de dados: ela é stateless, ou seja, cada requisição é processada de forma independente, sem persistência de histórico. Planejamos que o consumo será feito por dois tipos de clientes: o frontend hospedado na Vercel (uma interface de análise para colaboradores do banco) e outros sistemas internos do banco que integram essa API ao fluxo de concessão de crédito (por exemplo, um sistema de originação de propostas de renegociação de dividas).
 
 ### 1.2 Preparação do artefato do modelo
 
