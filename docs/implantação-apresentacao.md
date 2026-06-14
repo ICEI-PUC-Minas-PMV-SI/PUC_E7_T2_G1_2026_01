@@ -251,7 +251,7 @@ No teste de estresse (com 1000 usuários), o tempo máximo observado foi menor d
 
 #### Conclusão
 
-Em um cenário próximo do esperado em produção a presença de tempos de resposta muito elevados em alguns casos indica uma falta de previsibilidade, provavelmente relacionada às limitações do plano F1. Para uso em produção, seria importante eliminar esses picos de latência, o que pode ser feito com a migração para um plano mais robusto, que ofereça maior estabilidade e recursos dedicados.
+Para uso em produção, seria importante eliminar esses picos de latência, o que pode ser feito com a migração para um plano mais robusto, que ofereça maior estabilidade e recursos dedicados.
 
 
 
