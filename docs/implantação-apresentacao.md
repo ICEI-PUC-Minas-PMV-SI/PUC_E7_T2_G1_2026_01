@@ -258,11 +258,8 @@ Para uso em produção, seria importante eliminar esses picos de latência, o qu
 
 # Apresentação da solução
 
-Nesta seção, deve ser produzido um vídeo de até 15 minutos apresentando o escopo geral do projeto, um resumo das etapas desenvolvidas, a demonstração da solução publicada e as conclusões finais, destacando aprendizados, impacto e possibilidades de melhorias.
-
-# É IMPRESCINDÍVEL: 
-* Atualizar o arquivo **CITATION.cff** disponível no diretório raiz do repositório
-* Atualizar as **Instruções de utilização** no arquivo read.me
-
-
-
+Vídeo de até 15 minutos apresentando:
+ - o escopo geral do projeto
+ - um resumo das etapas desenvolvidas 
+ - demonstração da solução publicada
+ - conclusões finais, destacando aprendizados, impacto e possibilidades de melhorias.
