@@ -1,29 +1,29 @@
 cff-version: 1.0.1
 message: Please cite this software using these metadata.
-title:
+title: Modelagem Preditiva para Identificação de Risco de Inadimplência em Clientes de Crédito
 authors:
-  - family-names:
-    given-names:
-  - family-names:
-    given-names:
-  - family-names:
-    given-names:
-  - family-names:
-    given-names:
-  - family-names:
-    given-names:
-  - family-names:
-    given-names:
-  - family-names:
-    given-names:
-  - name-suffix: Professor XXXX
+  - family-names: Azevedo
+    given-names: Gabriel Pangracio
+  - family-names: Bastos
+    given-names: Gabriela Moreira
+  - family-names: Murta
+    given-names: Isadora Gomes
+  - family-names: Regnaldo
+    given-names: Rayane Paiva
+  - family-names: Costa
+    given-names: Thais Camila Gonçalves
+  - family-names: Cruz
+    given-names: Vitor Antonio Malafaya
+  - name-suffix: Professor Neil Paiva Tizzo
     affiliation: PUC Minas
-    family-names:
-    given-names:
+    family-names: Tizzo
+    given-names: Neil Paiva
 keywords:
-  -
-  -
-repository-code:
+  - machine learning
+  - credit scoring
+  - python
+  - performance testing  
+repository-code: https://github.com/ICEI-PUC-Minas-PMV-SI/PUC_E7_T2_G1_2026_01
 license: CC-BY-4.0
 version: 1.0.0
-date-released: 2023-06-30
+date-released: 2026-06-18
