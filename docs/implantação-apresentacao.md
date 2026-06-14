@@ -189,6 +189,72 @@ Um ponto importante para sistemas bancários, mesmo não sendo o foco técnico i
 
 A implantação atual, no Plano F1 do Azure App Service, não cumpre adequadamente os requisitos para um cenário de produção. A avaliação de capacidade mostra que, para o cenário descrito de uso interno em um banco com operação nacional, essa infraestrutura apresenta limitações de cota de CPU diária, ausência de redundância e a falta de SLA. O que torna necessária a migração para um plano de produção com múltiplas instâncias e autoscale.
 
+## Estratégia de testes e resultados do teste de carga
+
+### 1. Testes implementados na API
+
+A correção e a robustez da API foram verificadas com 4 tipos de testes. Os **testes unitários** do modelo (`test_model_xgboost_v1.py`), que carregam o arquivo `.joblib` diretamente e verificam o modelo isoladamente, sem depender da API. Esses testes confirmam que o modelo carrega sem erro, que a predição retorna sempre 0 ou 1, que o pipeline trata corretamente valores ausentes e que a ausência de uma coluna obrigatória gera um em vez de uma falha silenciosa. 
+
+Os **testes de integração** da API (`test_api.py`), que sobem a aplicação FastAPI em memória e testam o contrato exposto: o endpoint de health check responde 200, o `/predict` retorna os dois campos esperados (`prediction`, `probability`), a mesma entrada produz sempre a mesma saída (determinismo) e entradas inválidas retornam 422 em vez de um erro genérico. 
+
+O **smoke test** em produção (`smoke_test.py`), que faz chamadas reais contra a URL do Azure, repetindo as verificações essenciais (health check, predição válida, rejeição de payload inválido) e medindo o tempo de resposta de cada chamada. 
+
+O **teste de carga** com Locust (`locustfile.py`), que simula múltiplos sistemas internos chamando `/predict` simultaneamente, para responder à pergunta: o sistema continua funcionando dentro de um tempo de resposta aceitável quando vários sistemas chamam a API ao mesmo tempo?
+
+### 2. Resultados do teste de carga - caso 1 (pico de 1000 usuários, spawn rate 10)
+
+#### Contexto do teste
+
+Com uma taxa de criação (spawn rate) de 10 usuários por segundo, o Locust levou aproximadamente 100 segundos para atingir o total de 1000 usuários simulados. Cada usuário realizava requisições alternadas entre `GET /` e `POST /predict`, seguindo a proporção de 9(POST) para 1(GET), conforme definido no arquivo `locustfile.py`. Houve um intervalo de espera entre 0,5 e 2 segundos entre cada requisição.
+
+#### Análise dos resultados
+
+A primeira informação a observar é a taxa de falhas: foram registradas 0 falhas  tanto para o endpoint `GET /` quanto para o `POST /predict` o que indica que o sistema se comportou corretamente mesmo sob carga, sem retornar erros do tipo 4xx ou 5xx. 
+
+A mediana do tempo minimo de resposta foi de 5,5 segundos, a média de 6,09 segundos, o percentil 95 (p95) chegou a 12 segundos e o percentil 99 (p99) a 14 segundos, com tempo máximo de 14,49 segundos. Isso significa que metade das requisições levou mais de 5,5 segundos para responder, e uma pequena parte demorou até cerca de 14 segundos.
+
+A taxa de processamento (Current RPS) atingiu 62,3 req/s. Estima-se que cerca de 379 requisições estavam sendo processadas simultaneamente (ou aguardando em fila). Esse valor sugere que o servidor não consegue acompanhar a quantidade de requisições, gerando acúmulo e filas.
+
+#### Comparação com o planejamento de capacidade
+
+Comparando os resultados com o planejamento inicial, temos uma grande diferença. A taxa de pico esperada era de aproximadamente 4,4 requisições por segundo, enquanto no teste foram observamos 62,3 requisições por segundo, ou seja, uma taxa 14 vezes maior. O tempo de resposta esperado era de poucos milissegundos, mas no teste ficou na faixa de segundos.
+
+Esse teste representa um teste de estresse, com carga muito acima do esperado.
+
+#### Diagnóstico provável
+
+- O plano F1 utilizado possui recursos compartilhados e uma limitação diária de CPU. Durante o teste, é provável que essa cota tenha sido atingida, causando redução de desempenho (throttling). 
+- O sistema roda em apenas uma instância e, por padrão, o servidor uvicorn utiliza apenas um worker. Como o processamento do modelo (XGBoost) exige CPU, as requisições acabam sendo tratadas de forma sequencial, gerando filas.
+
+#### Conclusão e próximos passos
+
+O teste com 1000 usuários mostrou que o sistema continua funcionando corretamente, mesmo sob alta carga, mas também mostrou que o plano F1 não suporta esse volume de requisições com tempos de resposta adequados. Isso está de acordo com as limitações já previstas no planejamento.
+
+### 3. Resultados do teste de carga - caso 1 (pico de 15 usuários, ramp-up 2, 5 minutos)
+
+#### Contexto do teste
+
+Realizamos uma simulação mais próxima do ambiente de produção hipotético, com 15 usuários simultâneos no pico, ramp-up de 2 usuários por segundo (levando cerca de 7,5 segundos para atingir o total) e duração de 5 minutos. Esse cenário está alinhado com a taxa de pico estimada no planejamento de capacidade (~4,4 requisições por segundo). Durante o teste observamos uma taxa agregada de aproximadamente 10,8 req/s, mais que o dobro do valor inicialmente previsto.
+
+#### Análise dos resultados
+
+Os resultados mostram um bom desempenho do sistema na maior parte do tempo. A mediana foi de aproximadamente 140 ms e o percentil 95 ficou em torno de 190 ms. Isso indica que mais de 95% das requisições foram respondidas em menos de 200 ms. Mesmo acima da taxa de pico, o sistema conseguiu manter o desempenho ao longo dos 5 minutos de execução.
+
+Sobre os tempos de resposta: o percentil 99 chegou a aproximadamente 2,7 segundos, e o tempo máximo observado foi de cerca de 37,9 segundos. indicando que uma parcela das requisições apresentou tempos muito elevados. Cerca de 1% das requisições (~27 a 28 chamadas) levaram mais de 2,7 segundos para responder. Em um cenário real de produção, com um volume maior de requisições diárias, esse percentual pode representar centenas de chamadas lentas, impactando a experiência do usuário.
+
+![REPORT](https://github.com/ICEI-PUC-Minas-PMV-SI/PUC_E7_T2_G1_2026_01/blob/main/docs/img/report_c2.png)
+![GRAFICOS](https://github.com/ICEI-PUC-Minas-PMV-SI/PUC_E7_T2_G1_2026_01/blob/main/docs/img/total_requests_per_second_C2.png)
+
+#### Diagnóstico provável
+
+No teste de estresse (com 1000 usuários), o tempo máximo observado foi menor do que neste teste com apenas 15 usuários. Isso sugere que os tempos elevados não estão relacionados ao volume de requisições. É provável que esses valores extremos estejam associados a eventos pontuais do ambiente de execução, como cold start da aplicação, reinicialização da instância ou limitações de CPU do plano utilizado (como o plano F1, que possui recursos compartilhados e restrições de processamento).
+
+#### Conclusão
+
+Em um cenário próximo do esperado em produção a presença de tempos de resposta muito elevados em alguns casos indica uma falta de previsibilidade, provavelmente relacionada às limitações do plano F1. Para uso em produção, seria importante eliminar esses picos de latência, o que pode ser feito com a migração para um plano mais robusto, que ofereça maior estabilidade e recursos dedicados.
+
+
+
 
 # Apresentação da solução
 
