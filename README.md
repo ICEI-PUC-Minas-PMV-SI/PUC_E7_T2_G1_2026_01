@@ -37,7 +37,8 @@ Com base probabilidade, o projeto poderá apoiar processos de tomada de decisão
 
 Acesso em Produção (quando disponível)
 
-- URL: https://<seu-dominio>/...
+- URL: [FRONTEND](https://creditanalysis-t2-g1.netlify.app/)
+- URL: [SWAGGER](https://creditanalysis-ayahd8b7bpehgmat.eastus-01.azurewebsites.net/docs)
 - Status: online/homologação
 
 # Código
