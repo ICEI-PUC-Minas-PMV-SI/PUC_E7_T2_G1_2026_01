@@ -35,16 +35,17 @@ Com base probabilidade, o projeto poderá apoiar processos de tomada de decisão
 
 ## Instruções de utilização
 
-Acesso em Produção (quando disponível)
+Acesso em Produção
 
 - URL: [FRONTEND](https://creditanalysis-t2-g1.netlify.app/)
-- URL: [SWAGGER](https://creditanalysis-ayahd8b7bpehgmat.eastus-01.azurewebsites.net/docs)
+- URL: [SWAGGER API BACKEND](https://creditanalysis-ayahd8b7bpehgmat.eastus-01.azurewebsites.net/docs)
 - Status: online/homologação
 
-# Código
+### Código
 
-<li><a href="src/README.md"> Código Fonte</a></li>
+<li><a href="src/backend/analise-credito-eixo7/"> Código Fonte Backend</a></li>
+<li><a href="src/frontend"> Código Fonte Frontend</a></li>
 
-# Apresentação
+### Apresentação
 
 <li><a href="presentation/README.md"> Apresentação da solução</a></li>
