@@ -298,6 +298,7 @@ O Plano F1 é inadequado para produção, ele possui cold starts severos (de at�
 ![RESULTADOS](https://github.com/ICEI-PUC-Minas-PMV-SI/PUC_E7_T2_G1_2026_01/blob/main/docs/img/reports_C5_comparativo.png)
 
 
+
 # Apresentação da solução
 
 Vídeo de até 15 minutos apresentando:
