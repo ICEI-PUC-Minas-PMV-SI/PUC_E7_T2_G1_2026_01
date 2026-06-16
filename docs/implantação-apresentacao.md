@@ -230,7 +230,7 @@ Esse teste representa um teste de estresse, com carga muito acima do esperado.
 
 O teste com 1000 usuários mostrou que o sistema continua funcionando corretamente, mesmo sob alta carga, mas também mostrou que o plano F1 não suporta esse volume de requisições com tempos de resposta adequados. Isso está de acordo com as limitações já previstas no planejamento.
 
-### 3. Resultados do teste de carga - caso 1 (pico de 15 usuários, ramp-up 2, 5 minutos)
+### 3. Resultados do teste de carga - caso 2 (pico de 15 usuários, ramp-up 2, 5 minutos)
 
 #### Contexto do teste
 
@@ -253,7 +253,49 @@ No teste de estresse (com 1000 usuários), o tempo máximo observado foi menor d
 
 Para uso em produção, seria importante eliminar esses picos de latência, o que pode ser feito com a migração para um plano mais robusto, que ofereça maior estabilidade e recursos dedicados.
 
+### 3. Resultados do teste de carga - caso 3 (Plano B1, 15 usuários, ramp-up 2, 5 minutos)
 
+#### Contexto e Conclusão
+
+Mesma configuração de carga do Teste 2 (15 usuários, ramp-up de 2/s, 5 minutos), mas agora com a aplicação rodando no Plano B1, com CPU dedicada e Always On ativado. Segue a tabela de comparação dos 3 testes:
+
+| Métrica        | Teste 1 — F1, 1000 users | Teste 2 — F1, 15 users | Teste 3 — B1, 15 users |
+| -------------- | ------------------------ | ---------------------- | ---------------------- |
+| Mediana        | 5.500 ms                 | 140 ms                 | 190 ms                 |
+| P95            | 12.000 ms                | 190 ms                 | 1.000 ms               |
+| P99            | 14.000 ms                | 2.800 ms               | 1.700 ms               |
+| Máximo         | 14.488 ms                | 37.925 ms              | 2.213 ms               |
+| Falhas         | 0                        | 0                      | 3 (0,116%)             |
+| RPS sustentado | 62,3                     | 10,8                   | 8,9                    |
+
+A migração para o B1 fez com que o sistema operasse dentro de uma latência mais controlada. o response time máximo caiu de 37.925 ms para 2.213 ms, uma redução de 94%. Isso pode indicar que os  extremos do Teste 2 talvez fossem causados pelo cold start e pelo throttling de CPU do Plano F1, ambos eliminados no B1 com Always On. A mediana do tempo de resposta ficou um pouco acima 190 ms vs. 140 ms do Teste 2. O P95 subiu de 190 ms para 1.000 ms, e o P99 de 2.800 ms para 1.700 ms, ou seja, o P99 na verdade melhorou, mas o P95 piorou. 
+
+### 4. Resultados do teste de carga - caso 4 (Plano B2, 2 workers, 15 usuários, 2ramp up, 5 minutos)
+
+#### Contexto e Analise
+
+Mesma configuração de carga do Teste 2 (15 usuários, ramp-up de 2/s, 5 minutos), mas agora com a aplicação rodando no Plano B2, com 2 vCPUs, 2 workers, CPU dedicada e Always On ativado.  Adicionar 2 workers significa permitir que a aplicação processe mais de uma requisição ao mesmo tempo, utilizando melhor o poder da CPU disponível.
+
+Caracteristicas do plano B2:
+
+| Categoria | Característica | Detalhes | O que significa na prática                     |
+| --------- | -------------- | -------- | ---------------------------------------------- |
+| Compute   | vCPU           | 2 vCPUs  | Define quantas tarefas podem rodar em paralelo |
+| Memória   | RAM            | ~3.5 GB  | Espaço para armazenar dados temporários        |
+| CPU       | Dedicada       | Sim      | Sem disputa com outros clientes                |
+| Always On | Disponível     | Sim      | Evita lentidão inicial (cold start)            |
+| Custo     | Aproximado     | Médio    | Mais caro que F1/B1, mas com mais estabilidade |
+
+Este teste teve o melhor resultado. Tivemos zero falhas: mediana do tempo de resposta ficou em 160 ms, do P95 em 230 ms, P99 em 350 ms e máximo de tempo de resposta em apenas 678 ms para 3.130 requisições no `POST /predict`, rodando a 10,4 req/s (mais que o dobro do pico estimado de 4,4 req/s). Com relação ao Teste 3 o P95 caiu 77%, P99 caiu 79% e o máximo caiu 69% e o throughput ficou semelhante de 8,9 para10,4 req/s. Ou seja: o B2 entregou mais throughput, menos latência e zero falhas.
+
+#### Conclusão
+
+O Plano F1 é inadequado para produção, ele possui cold starts severos (de até 37 s) e entra em colapso sob estresse. A migração para o B1 eliminou os cold starts mas ainda deixou as requisições mais lentas do sistema na casa dos segundos (P99 de 1,7 s, máximo de 2,2 s) e produziu 3 falhas de timeout. Houve uma tentativa de adicionar um segundo worker no B1 que ajudou a confirmar que o gargalo era a vCPU única, porém mais workers competindo pelo mesmo núcleo pioraram deixaram algumas requisições mais lentas, piorando o que se chama de Cauda de latência. A mudança para o plano B2 com 2 workers resolveu esse gargalo: com 2 vCPUs disponíveis, os processos tem recursos suficientes para processar cada requisição sem competição, esse cenário não apresentou falhas, e apresentou P99 abaixo de 400 ms.
+
+##### Graficos gerados no Locust
+![LOCUST](https://github.com/ICEI-PUC-Minas-PMV-SI/PUC_E7_T2_G1_2026_01/blob/main/docs/img/total_requests_per_second_C5.png)
+##### Comparativo testes
+![RESULTADOS](https://github.com/ICEI-PUC-Minas-PMV-SI/PUC_E7_T2_G1_2026_01/blob/main/docs/img/reports_C5_comparativo.png)
 
 
 # Apresentação da solução
