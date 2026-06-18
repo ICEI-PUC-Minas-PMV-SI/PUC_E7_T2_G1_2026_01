@@ -34,6 +34,10 @@ Após cada deploy, a validação é feita em três níveis: primeiro, verificaç
 
 Qualquer alteração, segue o mesmo fluxo: commit no repositório, push para a branch principal, execução automática do workflow de CI/CD e substituição da versão em produção. É importante apontar que, no Plano F1, esse processo não conta com deployment slots (ambientes de staging para troca sem downtime), de forma que durante o redeploy a aplicação fica temporariamente indisponível.
 
+### 1.9 Arquitetura da solução
+
+![arquitetura](https://github.com/ICEI-PUC-Minas-PMV-SI/PUC_E7_T2_G1_2026_01/blob/main/docs/img/arquitetura_implantacao_api_credito.png)
+
 ## Planejamento e avaliação de capacidade
 
 ### 2.1 Cenário  hipotético de Produção
