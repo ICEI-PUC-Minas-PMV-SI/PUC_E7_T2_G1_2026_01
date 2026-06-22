@@ -305,8 +305,4 @@ O Plano F1 é inadequado para produção, ele possui cold starts severos (de at�
 
 # Apresentação da solução
 
-Vídeo de até 15 minutos apresentando:
- - o escopo geral do projeto
- - um resumo das etapas desenvolvidas 
- - demonstração da solução publicada
- - conclusões finais, destacando aprendizados, impacto e possibilidades de melhorias.
+Vídeo de apresentação: https://drive.google.com/drive/u/0/folders/1DP-sGo1rMOPtJJ2vfLmP6PfDXOPvt1Xh 
