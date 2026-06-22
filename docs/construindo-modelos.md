@@ -109,23 +109,25 @@ A Regressão Logística foi escolhida por ser o modelo de referência (*baseline
 
 Além do modelo base, foi realizada busca automática de hiperparâmetros via `RandomizedSearchCV` com as seguintes configurações:
 
-- **Espaço de busca:** `C` em intervalo log-uniforme [0,001; 10]; `penalty` em ['l2']; `class_weight` em ['balanced']
+- **Espaço de busca:** `C` em distribuição uniforme [0,001; 10]; `penalty` em ['l2']; `class_weight` em ['balanced', {0:1, 1:5}, {0:1, 1:10}]
 - **Número de iterações:** 50 combinações sorteadas aleatoriamente
 - **Validação cruzada:** `StratifiedKFold` com 5 folds, preservando a proporção 92/8 em cada fold
-- **Métrica de otimização:** `Recall (Inadimplente)` via `make_scorer` — alinhada à meta principal do projeto
+- **Métrica de otimização:** **F2-score da classe Inadimplente** (`fbeta_score`, `beta=2`, via `make_scorer`) — pondera o Recall duas vezes mais que a Precision, priorizando a detecção de inadimplentes sem ignorar completamente o FP rate
 
-> **Correção metodológica relevante:** uma versão anterior da busca utilizava `scoring='balanced_accuracy'`, o que causava colapso completo da detecção (Recall → 0,000). Isso ocorria porque o otimizador encontrava valores altos de `C` que enfraqueciam a regularização e faziam o modelo prever quase exclusivamente a classe majoritária. A substituição para `Recall (Inadimplente)` corrigiu o problema.
+> **Evolução metodológica da métrica de busca:** o pipeline passou por duas correções sucessivas. Na primeira versão, a busca utilizava `scoring='balanced_accuracy'`, o que causava colapso completo da detecção (Recall → 0,000) — o otimizador encontrava valores altos de `C` que enfraqueciam a regularização e faziam o modelo prever quase exclusivamente a classe majoritária. A primeira correção substituiu a métrica por `Recall (Inadimplente)` puro, resolvendo o colapso. Entretanto, otimizar Recall puro tem um risco metodológico: o otimizador poderia, em tese, selecionar um modelo degenerado que classifica todos os clientes como inadimplentes (Recall = 1, mas FP rate = 1). Por isso, a versão final do pipeline adota o **F2-score** como métrica de otimização — mais robusta, pois prioriza fortemente o Recall sem descartar completamente o controle de falsos positivos.
 
 ### 2.5 Avaliação do modelo
 
 #### Métricas principais
 
-| Métrica | Meta do Projeto | Modelo Base (C=0,1) | Pipeline Otimizado |
+| Métrica | Meta do Projeto | Modelo Base (C=0,1) | Pipeline Otimizado (F2-score) |
 |---|---|---|---|
 | Recall (Inadimplente) | ≥ 0,50 | **0,6433** ✅ | 0,6427 ✅ |
 | Balanced Accuracy | ≥ 0,60 | **0,6600** ✅ | 0,6600 ✅ |
-| FP Rate | ≤ 30% | **0,3233** ✅ | 0,3227 ✅ |
+| FP Rate | ≤ 30% | **0,3233** ❌ | 0,3227 ❌ |
 | Accuracy Geral | — | 0,67 | 0,67 |
+
+> **Leitura pela régua multicritério do projeto (ver seção 4.0):** a Regressão Logística atinge **2 das 3 metas** (Recall e Balanced Accuracy), mas **viola a meta de FP Rate** em ambas as variantes (Base e Otimizada). Como a régua do projeto exige o atendimento simultâneo das três métricas para que um modelo seja considerado "operacionalmente aceitável" / um bom modelo, a Regressão Logística **não atende ao critério de aceitação do projeto**, apesar de superar o Random Forest em Recall e em Balanced Accuracy.
 
 #### Relatório completo de classificação — Modelo Base
 
@@ -142,7 +144,7 @@ Além do modelo base, foi realizada busca automática de hiperparâmetros via `R
 
 **Precision (Inadimplente) = 0,15:** de todos os clientes classificados como inadimplentes, apenas 15% realmente eram. Os outros 85% eram falsos positivos. Esse valor é baixo, mas esperado e gerenciável em um contexto de forte desbalanceamento e priorização do recall — o custo de um FN (inadimplente aprovado) supera o de um FP (bom pagador recusado) em 5 a 10 vezes, segundo a literatura de risco de crédito.
 
-**Recall (Bom Pagador) = 0,69:** o modelo aprovou corretamente 69% dos bons pagadores. O FP rate de 32% significa que 31% dos bons pagadores foram recusados indevidamente — ligeiramente acima do limite de 30% definido como meta. Esse trade-off é uma consequência direta da regularização fraca e da priorização do recall da classe minoritária.
+**Recall (Bom Pagador) = 0,69:** o modelo aprovou corretamente 69% dos bons pagadores. O FP rate de 32,33% significa que quase um terço dos bons pagadores foi recusado indevidamente — **acima do limite de 30% definido como meta do projeto**, o que caracteriza violação efetiva (e não marginal) do critério, conforme a régua multicritério estabelecida *a priori* (seção 4.0). Esse trade-off é uma consequência direta da regularização fraca e da priorização do recall da classe minoritária.
 
 **Balanced Accuracy = 0,66:** indica que o modelo aprende padrões reais de risco, e não apenas decorar a classe majoritária. A queda em relação à acurácia trivial de 92% é o preço pago pelo `class_weight='balanced'`.
 
@@ -208,13 +210,12 @@ Para o perfil com `EXT_SOURCE_2 = 0,10` e `EXT_SOURCE_3 = 0,15`:
 - Recall (Inadimplente) de 0,643 — superior ao RF (0,537), porém ligeiramente abaixo do XGBoost (0,663)
 - Probabilidades nativamente calibradas (Brier Score e ECE melhores que RF sem calibração)
 - Coeficientes interpretáveis diretamente em log-odds — auditabilidade máxima
-- Pipeline encapsulado com `StandardScaler` interno, eliminando risco de data leakage em produção
+- Pipeline encapsulado ponta a ponta (`StandardScaler` + transformadores customizados de limpeza, internos ao `Pipeline`), eliminando risco de data leakage em produção
 - Treinamento significativamente mais rápido que RF e XGBoost
 
 **Limitações:**
-- FP rate de 32,3% ligeiramente acima da meta de 30% — recusa proporcionalmente mais bons pagadores
+- **FP rate de 32,3% viola a meta do projeto (≤ 30%)** — recusa indevidamente quase 1 a cada 3 bons pagadores. Pela régua multicritério oficial do projeto (seção 4.0), essa violação **desqualifica a Regressão Logística como modelo operacionalmente aceitável**, mesmo com Recall e Balanced Accuracy dentro da meta
 - Assume relação linear entre as features e o log-odds da inadimplência — pode perder padrões não-lineares complexos
-- Pipeline não é ponta-a-ponta: etapas de remoção de nulos, anomalia `DAYS_EMPLOYED` e seleção de features ocorrem fora do `sklearn.Pipeline`
 - Dependência crítica de `EXT_SOURCE_2` e `EXT_SOURCE_3` — indisponibilidade dessas fontes deterioraria drasticamente o desempenho
 
 ---
@@ -294,13 +295,15 @@ Antes de aceitar os valores padrão, o projeto realizou análises de curva de ap
 
 #### Métricas por variante
 
-| Variante | Recall (Inadimplente) | Balanced Accuracy | FP Rate | Atinge metas? |
+| Variante | Recall (Inadimplente) | Balanced Accuracy | FP Rate | Atinge as 3 metas simultaneamente? |
 |---|---|---|---|---|
 | Baseline | ≈ 0,54 | ≈ 0,66 | ≈ 0,22 | ✅ (estimativa — avaliado na validação) |
 | SMOTE | ≈ 0,89* | — | > 0,60* | ❌ (FP rate viola meta) |
-| Melhor config (RandomizedSearchCV) | **0,6628** | **0,6707** | 0,3214 | ⚠️ (FP viola meta) |
+| Melhor config (RandomizedSearchCV) | **0,6628** | **0,6707** | 0,3214 | ❌ (FP rate viola meta) |
 
 *SMOTE sem `scale_pos_weight`: Recall elevado, porém com FP rate muito acima do limite de 30%.
+
+> **Nota:** pela régua multicritério do projeto (seção 4.0), um modelo só é considerado "operacionalmente aceitável" quando atinge **as três metas simultaneamente**. A melhor configuração do XGBoost (via `RandomizedSearchCV`) atinge 2 das 3 (Recall e Balanced Accuracy), mas viola a meta de FP Rate — por isso não é classificada como operacionalmente aceitável, apesar de superar o Random Forest nas duas primeiras métricas.
 
 #### Métricas finais — modelo selecionado (RandomizedSearchCV, conjunto de teste)
 
@@ -357,36 +360,59 @@ A consistência entre as explicações SHAP do XGBoost e da Regressão Logístic
 ### 3.6 Pontos fortes e limitações
 
 **Pontos fortes:**
-- Recall (Inadimplente) superior ao Random Forest com o mesmo conjunto de features
+- Recall (Inadimplente) superior ao Random Forest com o mesmo conjunto de features (0,663 vs. 0,537)
 - `scale_pos_weight` nativo é mecanismo eficiente e integrado para tratamento do desbalanceamento
 - Explicabilidade via SHAP `TreeExplainer` — exata e determinística
-- Pipeline compatível e comparável ao RF (mesmo `sklearn.pipeline.Pipeline`)
+- Pipeline ponta a ponta, compatível e comparável ao RF (mesmos transformadores customizados e mesmo `sklearn.pipeline.Pipeline`)
 - Captura não-linearidades e interações que a Regressão Logística não consegue
 
 **Limitações:**
+- **FP rate de 32,1% viola a meta do projeto (≤ 30%)** — e **não é similar ao do Random Forest**: o RF mantém FP rate de 22%, enquanto o XGBoost recusa indevidamente cerca de 10 pontos percentuais a mais de bons pagadores. Pela régua multicritério do projeto (seção 4.0), essa violação **desqualifica o XGBoost como modelo operacionalmente aceitável**, apesar do Recall e da Balanced Accuracy superiores
 - Maior sensibilidade à escolha de hiperparâmetros em comparação ao Random Forest
 - Risco de overfitting maior pelo processo sequencial de boosting (mitigado pela regularização)
-- FP rate similar ao Random Forest (~22%) — ligeiramente acima do modelo linear em algumas configurações
 - SMOTE piora o desempenho nesta base — confirmado
-- Pipeline não é ponta-a-ponta (mesma limitação documentada nos outros modelos)
+
+> **Conclusão pela régua do projeto:** o XGBoost é a melhor opção apenas no cenário em que maximizar a detecção de inadimplentes é o único critério, sem exigência de controle de FP rate. Para o uso geral do projeto — que exige o atendimento simultâneo das três metas — o XGBoost **não é o modelo recomendado**; essa posição é ocupada pelo Random Forest (ver seção 4).
 
 ---
 
 ## 4. Análise Comparativa entre os Três Modelos
 
+### 4.0 Critério de decisão — a régua multicritério do projeto
+
+Antes de comparar os três modelos, é necessário fixar **uma única regra de decisão**, definida *a priori* (antes de ver os resultados finais) na seção "Definição da Métrica Principal de Avaliação" replicada em cada notebook do projeto. Sem essa regra explícita, seções diferentes do relatório podem (e chegaram a) declarar vencedores diferentes dependendo de qual métrica isolada é destacada — o que compromete a auditabilidade da comparação.
+
+A régua do projeto é composta por **três métricas, e não por uma só**, e as três funcionam como uma condição **E** (conjunção), não como critérios alternativos:
+
+| # | Critério | Meta | O que mede | Por que é necessário |
+|---|---|---|---|---|
+| 1 | **Recall (Inadimplente)** | ≥ 0,50 | Dentre os inadimplentes reais, quantos o modelo identifica antes da concessão | É a métrica principal do projeto: traduz o objetivo de negócio de evitar emprestar para quem não vai pagar. Sozinha, porém, pode ser inflada por um modelo que recusa quase todo mundo |
+| 2 | **Balanced Accuracy** | ≥ 0,60 | Média do recall das duas classes (Bom Pagador e Inadimplente) | Garante que o modelo não está apenas otimizando a classe minoritária às custas de destruir a classe majoritária — é a métrica secundária de equilíbrio |
+| 3 | **FP Rate** | ≤ 0,30 | Proporção de bons pagadores recusados indevidamente | É o "freio" da régua: sem um limite de FP, o Recall poderia ser maximizado trivialmente classificando todo mundo como inadimplente (Recall = 1, mas o banco para de operar) |
+
+**A regra de aceitação é explícita e única, e foi aplicada da mesma forma aos três modelos:**
+
+> Um modelo só é considerado **"operacionalmente aceitável"** — ou seja, um **bom modelo** segundo o critério definido pelo projeto — se atingir **as três metas simultaneamente**: Recall ≥ 0,50 **E** Balanced Accuracy ≥ 0,60 **E** FP Rate ≤ 0,30. Atender a duas das três métricas **não é suficiente**: um modelo que detecta muitos inadimplentes mas recusa indevidamente um terço dos bons pagadores não é, pela régua do projeto, um modelo aceitável — mesmo que sua métrica principal (Recall) seja a mais alta entre os três.
+>
+> **Critério de desempate** (caso mais de um modelo atinja as três metas): o modelo com o maior Recall (Inadimplente) entre os aceitáveis. **Se nenhum modelo atingir as três metas**, a violação é registrada explicitamente e o modelo com a menor violação combinada é indicado, com a ressalva de que nenhum modelo cumpriu integralmente o critério de aceitação.
+
+Essa é a mesma regra aplicada de forma idêntica nos três notebooks do projeto (Random Forest, Regressão Logística e XGBoost), evitando que a conclusão final dependa de qual seção do relatório é lida.
+
 ### 4.1 Quadro comparativo geral
 
-| Critério | Random Forest (Etapa 3) | Regressão Logística | XGBoost |
+| Critério | Random Forest | Regressão Logística | XGBoost |
 |---|---|---|---|
 | **Recall (Inadimplente)** | 0,537 | 0,643 | **0,663** |
 | **Balanced Accuracy** | 0,657 | 0,660 | **0,671** |
-| **FP Rate** | **0,220** | 0,323 | 0,321 |
+| **FP Rate** | **0,220** ✅ | 0,323 ❌ | 0,321 ❌ |
 | **Accuracy Geral** | 0,76 | 0,67 | ~0,76 |
 | **F1-Score (Inadimplente)** | 0,26 | 0,24 | ~0,26 |
 | **Brier Score** | 0,1705 | ~0,17* | ~0,17* |
-| **Atinge todas as metas** | ✅ | ✅ (FP rate marginal) | ✅ |
+| **Atinge as 3 metas simultaneamente (régua oficial)** | ✅ **Sim** | ❌ Não (FP rate viola) | ❌ Não (FP rate viola) |
 
 *Valores aproximados — os valores exatos dependem da execução do notebook.
+
+> **Leitura correta da tabela:** o XGBoost e a Regressão Logística superam o Random Forest em Recall e em Balanced Accuracy — isoladamente, ambos pareceriam "melhores". Mas nenhum dos dois atinge a meta de FP Rate (≤ 30%), o que os torna **não aceitáveis** pela régua oficial do projeto. O **Random Forest é o único modelo que atinge as três metas simultaneamente** e é, portanto, o **modelo vencedor** segundo o critério de decisão definido a priori — não por ter a métrica isolada mais alta, mas por ser o único operacionalmente aceitável.
 
 ### 4.2 Metas quantitativas — comparativo
 
@@ -394,9 +420,10 @@ A consistência entre as explicações SHAP do XGBoost e da Regressão Logístic
 |---|---|---|---|---|
 | Recall ≥ 0,50 | Detecção de inadimplentes | ✅ 0,537 | ✅ 0,643 | ✅ 0,663 |
 | Balanced Acc ≥ 0,60 | Equilíbrio entre classes | ✅ 0,657 | ✅ 0,660 | ✅ 0,671 |
-| FP Rate ≤ 30% | Recusas indevidas | ✅ 22% | ⚠️ 32%* | ❌ 32,1%* |
+| FP Rate ≤ 30% | Recusas indevidas | ✅ 22% | ❌ 32,3% | ❌ 32,1% |
+| **Resultado pela régua (E lógico das 3 metas)** | — | **✅ Operacionalmente aceitável** | ❌ Não aceitável | ❌ Não aceitável |
 
-*A RL fica marginalmente acima do limite de 30% — a decisão de uso depende da política de risco da instituição e do custo relativo de FP vs. FN.
+A regra é binária e sem exceções: como FP Rate é uma das três condições da conjunção, **violar apenas uma delas já é suficiente para reprovar o modelo** pela régua do projeto — independentemente de quão bem ele performe nas outras duas. É exatamente isso que acontece com a Regressão Logística e o XGBoost.
 
 ### 4.3 Análise por dimensão de negócio
 
@@ -409,17 +436,17 @@ O **XGBoost** apresenta o maior Recall (0,663), seguido pela Regressão Logísti
 - XGBoost capturaria: 80.000 × 0,663 ≈ **53.040 inadimplentes**
 
 
-A diferença entre XGBoost e RF equivale a aproximadamente **10.080 inadimplentes a mais detectados** por ano.
+A diferença entre XGBoost e RF equivale a aproximadamente **10.080 inadimplentes a mais detectados** por ano. Esse ganho em Recall é real e seria relevante caso a métrica de Recall fosse o único critério de decisão do projeto — **mas não é**: a régua oficial (seção 4.0) exige também o controle do FP rate, que o XGBoost não atende (ver próxima subseção).
 
 #### Recusas indevidas (FP Rate)
 
-O **Random Forest e o XGBoost** apresentam FP rate de ≈ 22%, enquanto a Regressão Logística chega a 32,3%. Em termos de bons pagadores recusados indevidamente (no mesmo portfolio hipotético, com 920.000 bons pagadores):
+O **Random Forest** apresenta o menor FP rate (22%), bem abaixo da Regressão Logística (32,3%) e do XGBoost (32,1%) — estes dois últimos com FP rate praticamente equivalente entre si, e ambos acima do limite de 30% definido como meta do projeto. Em termos de bons pagadores recusados indevidamente (em um portfolio hipotético com 920.000 bons pagadores):
 
 - RF recusaria: 920.000 × 0,22 ≈ **202.400 bons pagadores**
 - RL recusaria: 920.000 × 0,323 ≈ **297.160 bons pagadores**
 - XGBoost recusaria: 920.000 × 0,321 ≈ **295.320 bons pagadores**
 
-RL e XGBoost têm FP rate similar (~32%), ambos significativamente acima do RF (22%). A diferença de ≈ 93.000 bons pagadores recusados a mais representa receita de juros potencialmente perdida — custo que deve ser ponderado contra o ganho na detecção de inadimplentes.
+RL e XGBoost têm FP rate similar entre si (~32%), ambos significativamente acima do RF (22%) e **acima do limite de 30% tolerado pelo projeto**. A diferença de ≈ 93.000 bons pagadores recusados a mais representa receita de juros potencialmente perdida — e é exatamente essa violação que retira a RL e o XGBoost da condição de modelo operacionalmente aceitável, mesmo com Recall superior ao RF.
 
 #### Interpretabilidade e auditabilidade
 
@@ -441,9 +468,9 @@ Em todos os três modelos, a calibração via `CalibratedClassifierCV` padrão d
 
 | Modelo | Sensibilidade a hiperparâmetros | Método de otimização | Resultado da otimização |
 |---|---|---|---|
-| Random Forest | Baixa — robusto por natureza | GridSearchCV | Resultado similar ao baseline |
-| Regressão Logística | Baixa — regularização estabiliza | RandomizedSearchCV | `C=3,746` ≈ baseline `C=0,1` |
-| XGBoost | **Alta** — espaço de parâmetros amplo | RandomizedSearchCV | Ganho modesto sobre baseline |
+| Random Forest | Baixa — robusto por natureza | `RandomizedSearchCV` (scoring=`balanced_accuracy`) | Recall 0,537→0,565 e Balanced Acc 0,657→0,658 — ganho discreto sobre o baseline |
+| Regressão Logística | Baixa — regularização estabiliza | `RandomizedSearchCV` (scoring=F2-score) | `C=3,746` ≈ baseline `C=0,1` — resultado praticamente idêntico |
+| XGBoost | **Alta** — espaço de parâmetros amplo | `RandomizedSearchCV` (scoring=Recall) | Ganho relevante em Recall sobre o baseline, ao custo de FP rate mais alto |
 
 ### 4.4 Consistência dos sinais entre modelos
 
@@ -472,12 +499,14 @@ A conclusão é uniforme: com 246.000 registros de treino e os mecanismos de bal
 
 | Cenário de uso | Modelo recomendado | Justificativa |
 |---|---|---|
-| Maximizar detecção de inadimplentes (custo de FN >> custo de FP) | **XGBoost** | Maior Recall (0,663) |
-| Minimizar recusas indevidas de bons pagadores | **Random Forest ou XGBoost** | Menor FP rate (≈22%) |
-| Auditoria regulatória rigorosa / LGPD | **Regressão Logística** | Coeficientes diretos + SHAP |
+| **Uso geral / recomendação oficial do projeto** | **Random Forest** | É o **único modelo que atinge as três metas simultaneamente** (Recall ≥ 0,50 e Balanced Accuracy ≥ 0,60 e FP Rate ≤ 0,30) — vencedor pela régua de decisão definida a priori |
+| Minimizar recusas indevidas de bons pagadores | **Random Forest** | Menor FP rate do projeto (22%), único dentro do limite de 30% |
+| Maximizar detecção de inadimplentes, sem exigência de FP rate ≤ 30% | **XGBoost** | Maior Recall (0,663) — mas essa escolha implica aceitar conscientemente uma violação da meta de FP rate (32,1%) |
+| Auditoria regulatória rigorosa / LGPD | **Regressão Logística** | Coeficientes diretos + SHAP — mas também viola a meta de FP rate (32,3%), então não substitui o RF como modelo de produção sem ajuste de limiar |
 | Probabilidades para pricing de risco | **Regressão Logística** | Melhor calibração nativa |
-| Maior poder preditivo com tolerância a FP | **XGBoost** | Boosting sequencial captura padrões mais complexos |
-| Equilíbrio geral entre todos os critérios | **Random Forest** | Menor FP rate + adequada detecção + robustez |
+| Equilíbrio geral entre todos os critérios | **Random Forest** | Único modelo simultaneamente dentro das metas de Recall, Balanced Accuracy e FP rate |
+
+> **Importante:** as linhas que recomendam XGBoost ou Regressão Logística descrevem cenários **alternativos e explicitamente fora da régua oficial do projeto** — escolhas válidas apenas se a instituição decidir, de forma deliberada, relaxar o critério de FP rate em favor de outro objetivo de negócio. Para a entrega e a recomendação padrão deste projeto, o modelo vencedor é o **Random Forest**.
 
 ---
 
@@ -608,15 +637,16 @@ O pipeline proposto na Etapa 3 cobria as fases de coleta, EDA, pré-processament
 | Decisão | Random Forest | Regressão Logística | XGBoost |
 |---|---|---|---|
 | Balanceamento | `class_weight='balanced'` | `class_weight='balanced'` | `scale_pos_weight ≈ 11,39` |
-| Otimização | GridSearchCV | RandomizedSearchCV | RandomizedSearchCV |
-| Métrica de otimização | Recall (Inadimplente) | Recall (Inadimplente)* | Recall (Inadimplente) |
-| Árvores / iterações | 200 | — | 200 |
-| Profundidade | max_depth=12 | — | max_depth=6 |
-| Regularização | min_samples_leaf=5 | C=0,1 (L2) | reg_alpha, reg_lambda |
-| Normalização | Não aplicada | StandardScaler interno | Não aplicada |
+| Otimização | `RandomizedSearchCV` | `RandomizedSearchCV` | `RandomizedSearchCV` |
+| Métrica de otimização | `balanced_accuracy`* | F2-score (β=2)** | Recall (Inadimplente) |
+| Árvores / iterações | n_estimators ≈ 188 (busca) | — | 200 (baseline) |
+| Profundidade | max_depth=8 (busca) / 12 (baseline) | — | max_depth=6 |
+| Regularização | min_samples_leaf=2 (busca) | C=3,746 (busca) / 0,1 (baseline), L2 | reg_alpha, reg_lambda |
+| Normalização | Não aplicada | StandardScaler interno (ponta a ponta) | Não aplicada |
 | SMOTE | Não usar | Não usar | Não usar |
 
-*Após correção metodológica (originalmente `balanced_accuracy`).
+*A escolha de `balanced_accuracy` como métrica de busca do RF é consistente com a métrica secundária do projeto; o Recall e o FP rate são verificados a posteriori no conjunto de teste.
+**Após duas correções metodológicas sucessivas na Regressão Logística: a primeira versão usava `balanced_accuracy` (causava colapso do Recall); a segunda usou `Recall` puro (resolveu o colapso, mas com risco de selecionar um modelo degenerado); a versão final adota F2-score como métrica mais robusta.
 
 #### Fase 7 — Avaliação
 
@@ -637,44 +667,49 @@ O pipeline proposto na Etapa 3 cobria as fases de coleta, EDA, pré-processament
 | Zona cinzenta | P(inadimplente) ∈ [0,4; 0,6] → revisão humana | Clientes limítrofes exigem análise complementar |
 | Monitoramento | AUC-PR por safra + disponibilidade de EXT_SOURCE | Detectar drift antes que o desempenho degrade |
 
-### 5.5 Limitações remanescentes do pipeline (todos os modelos)
-
-As seguintes limitações são comuns aos três modelos e representam oportunidades de melhoria em versões futuras:
-
-- **Pipeline não ponta-a-ponta:** as etapas de remoção de nulos, tratamento da anomalia `DAYS_EMPLOYED` e seleção de features ocorrem fora do `sklearn.Pipeline`. Uma versão de produção robusta deveria converter essas etapas em `FunctionTransformer` ou transformadores customizados (`BaseEstimator + TransformerMixin`).
-
-- **Seleção de features fora do pipeline:** a redução 122 → 10 features ocorreu antes da encapsulação. Recomenda-se incluir `SelectFromModel` ou `SelectKBest` como passo do pipeline para que a seleção seja reaprendida ao executar `.fit()` em uma nova base.
-
-- **Imputação de EXT_SOURCE por mediana:** `EXT_SOURCE_2` e `EXT_SOURCE_3` são as variáveis mais importantes e foram imputadas pela mediana. Uma imputação mais sofisticada via `KNNImputer` poderia preservar melhor a distribuição dessas variáveis e melhorar o desempenho.
-
-- **Dependência crítica de fontes externas:** `EXT_SOURCE_2` e `EXT_SOURCE_3` respondem por ≈50% do poder preditivo em todos os modelos. A indisponibilidade dessas fontes deterioraria drasticamente qualquer um dos três modelos.
-
-- **Feature engineering não explorada:** `AMT_INCOME_TOTAL` isolada é pouco discriminatória em todos os modelos. A razão `AMT_CREDIT / AMT_INCOME_TOTAL` (comprometimento de renda) e `AMT_ANNUITY / AMT_INCOME_TOTAL` (peso mensal da dívida) foram identificadas como candidatas a features derivadas com maior poder preditivo.
 
 ---
 
 ## Resultados Finais Consolidados
 
-| Modelo | Recall (Inadimplente) | Balanced Accuracy | FP Rate | Metas atendidas |
+### Régua de decisão aplicada (recapitulação da seção 4.0)
+
+A comparação final segue **uma única regra**, definida antes da execução dos modelos e aplicada de forma idêntica nos três notebooks: um modelo é considerado **bom modelo / operacionalmente aceitável** apenas se atingir **simultaneamente** as três métricas abaixo — não basta atingir uma ou duas:
+
+1. **Recall (Inadimplente) ≥ 0,50** — captura ao menos metade dos inadimplentes reais;
+2. **Balanced Accuracy ≥ 0,60** — desempenho equilibrado entre as duas classes, não apenas decorando a classe majoritária;
+3. **FP Rate ≤ 0,30** — não recusa indevidamente mais de 30% dos bons pagadores.
+
+| Modelo | Recall (Inadimplente) | Balanced Accuracy | FP Rate | Atinge as 3 metas simultaneamente? |
 |---|---|---|---|---|
-| Random Forest | 0,537 | 0,657 | 0,220 | ✅ Todas |
-| Regressão Logística | 0,643 | 0,660 | 0,323 | ⚠️ (FP marginal) |
-| **XGBoost** | **0,663** | **0,671** | 0,321 | ⚠️ (FP marginal) |
+| **Random Forest** | 0,537 ✅ | 0,657 ✅ | **0,220** ✅ | ✅ **Sim — único modelo aceitável** |
+| Regressão Logística | 0,643 ✅ | 0,660 ✅ | 0,323 ❌ | ❌ Não (FP rate viola a meta) |
+| XGBoost | **0,663** ✅ | **0,671** ✅ | 0,321 ❌ | ❌ Não (FP rate viola a meta) |
 
-**Modelo com maior detecção de inadimplentes:** XGBoost (Recall = 0,663)
+### Modelo vencedor: Random Forest
 
-**Modelo com menor taxa de recusa indevida:** Random Forest (FP rate = 22%)
+Pela régua multicritério do projeto, o **Random Forest é o modelo vencedor** — não porque tenha a métrica isolada mais alta (de fato, tem o menor Recall e a menor Balanced Accuracy entre os três), mas porque é o **único que atende simultaneamente às três condições de aceitação** definidas a priori. Regressão Logística e XGBoost superam o RF em Recall e em Balanced Accuracy, mas **ambos violam a meta de FP Rate** (32,3% e 32,1%, respectivamente, contra o limite de 30%) — o que os torna, pela regra do projeto, **não operacionalmente aceitáveis**, independentemente do desempenho nas outras duas métricas.
 
-**Nota:** XGBoost e Regressão Logística apresentam FP rate de ~32% na configuração otimizada — ambos violam marginalmente a meta de ≤ 30%. O RF é o único modelo que atinge as três metas simultaneamente.
+> A robustez dessa conclusão não depende da variante exata do RF: tanto o modelo Base (Recall 0,537 | Balanced Acc 0,657 | FP rate 0,220) quanto o Pipeline Otimizado via `RandomizedSearchCV` (Recall 0,565 | Balanced Acc 0,658 | FP rate 0,249) atingem as três metas — reforçando que o Random Forest é a escolha vencedora independentemente de qual de suas duas configurações for usada em produção.
 
-**Consistência transversal:** os três modelos convergem para as mesmas quatro variáveis mais importantes (`EXT_SOURCE_2`, `EXT_SOURCE_3`, `DAYS_EMPLOYED`, `DAYS_BIRTH`), validando a robustez da seleção de features e a qualidade do pré-processamento aplicado.
+**Modelo com maior detecção de inadimplentes (Recall):** XGBoost (0,663) — porém não aceitável pela régua do projeto.
+
+**Modelo com menor taxa de recusa indevida (FP Rate):** Random Forest (0,220) — dentro da meta.
+
+**Modelo recomendado para uso geral / produção:** **Random Forest**, encapsulado em pipeline ponta a ponta (`pipeline_credito_v2_otimizado.joblib`), sem `CalibratedClassifierCV` padrão e sem SMOTE.
+
+**Consistência transversal:** os três modelos convergem para as mesmas quatro variáveis mais importantes (`EXT_SOURCE_2`, `EXT_SOURCE_3`, `DAYS_EMPLOYED`, `DAYS_BIRTH`), validando a robustez da seleção de features e a qualidade do pré-processamento aplicado — independentemente de qual modelo é escolhido como vencedor.
 
 ---
+
+## VÍDEO DE APRESENTAÇÃO
+
+https://drive.google.com/drive/folders/1DP-sGo1rMOPtJJ2vfLmP6PfDXOPvt1Xh
 
 ## Google Golab:
 
 Pré-processamento + RF: https://colab.research.google.com/drive/1kyNPu03iqnTysWOoImxa9lKSQlVAASlr#scrollTo=8J6HflQRT1ZJ
 
-MODELO XG BOOST: https://colab.research.google.com/drive/1uZJyTjkNwFb2dygrBusWNWP0HXX20DWB?authuser=1#scrollTo=9d1a5910
+MODELO XG BOOST: https://colab.research.google.com/drive/1tKNefzdHrVzOQoZTlmwzfq58_ivyjnW-?authuser=1#scrollTo=wvnzssAQ36HP
 
 MODELO DE REGRESSÃO LOGÍSTICA: https://colab.research.google.com/drive/1WXnscggtew4jYn7WETfG5t2QWHpbfWID
